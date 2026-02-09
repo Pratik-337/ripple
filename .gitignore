@@ -1,0 +1,14 @@
+# Ignore Database Data
+data/
+
+# Ignore Java Build Files
+target/
+*.class
+
+# Ignore IDE Settings
+.idea/
+*.iml
+
+# Ignore OS Files
+.DS_Store
+Thumbs.db
