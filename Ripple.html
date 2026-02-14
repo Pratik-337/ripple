@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple: Change Impact Tracker</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recharts@2.5.0/dist/Recharts.js"></script>
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+    <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            /* background: #0a0e17; */
+            color: #e4e7eb;
+            overflow-x: hidden;
+        }
+
+        body.light {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+        }
+
+        body.dark {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #141925;
+            background: #0a0e17;
+            --bg-tertiary: #1e2433;
+            --bg-hover: #252d3f;
+            --border-color: #2a3447;
+            --text-primary: #e4e7eb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #141925;
+            --bg-tertiary: #1e2433;
+            --bg-hover: #252d3f;
+            --border-color: #2a3447;
+            --text-primary: #e4e7eb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 0 12px 8px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 64px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px 10px 40px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent-primary);
+            background: var(--bg-primary);
+        }
+
+        .search-bar svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-button:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-change.positive {
+            color: var(--success);
+        }
+
+        .card-change.negative {
+            color: var(--danger);
+        }
+
+        /* Button */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-tertiary);
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 24px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-badge.approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .status-badge.deployed {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--info);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Component Card */
+        .component-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .component-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .component-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .component-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .meta-item svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Graph Visualization */
+        .graph-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            height: 600px;
+            position: relative;
+        }
+
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .graph-node {
+            position: absolute;
+            width: 120px;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .graph-node:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .graph-node.affected {
+            border-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* Impact Analysis */
+        .impact-header {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .impact-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .risk-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--danger);
+        }
+
+        .risk-score.medium {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .risk-score.low {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Acknowledgment List */
+        .ack-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ack-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ack-info {
+            flex: 1;
+        }
+
+        .ack-component {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .ack-owner {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .ack-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            border-color: var(--accent-primary);
+            background: var(--bg-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                z-index: 100;
+                transition: left 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .search-bar {
+                width: 200px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filters-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -26px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent-primary);
+        }
+
+        .timeline-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* Project Dropdown */
+        .project-dropdown {
+            margin-right: 12px;
+        }
+
+        .project-dropdown select {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .project-dropdown select:hover {
+            border-color: var(--accent-primary);
+        }
+
+        /* File Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Graph Container */
+        .graph-container {
+            width: 100%;
+            height: calc(100vh - 250px);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            position: relative;
+        }
+
+        #cy {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .graph-controls {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-primary);
+        }
+
+        .node-details {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 300px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: calc(100% - 32px);
+            overflow-y: auto;
+        }
+
+        .node-details h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .node-detail-item {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-detail-item strong {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Simple icon fallback (emoji-based)
+        const iconMap = {
+            LayoutDashboard: '📊', GitBranch: '🌿', AlertCircle: '⚠️', Network: '🔗', TestTube: '🧪',
+            Bug: '🐛', BarChart3: '📈', Settings: '⚙️', Search: '🔍', Bell: '🔔', GitCommit: '💾',
+            Users: '👥', Clock: '🕐', TrendingUp: '📈', TrendingDown: '📉', ChevronRight: '➤',
+            X: '✕', Check: '✓', AlertTriangle: '⚠️', Info: 'ℹ️', FileText: '📄', Package: '📦',
+            Activity: '⚡', Zap: '⚡', Shield: '🛡️', Eye: '👁️', Filter: '🔽', Plus: '➕', Download: '⬇️'
+        };
+        
+        // Create mock lucide object for each icon
+        const createIconComponent = (name) => {
+            return ({ size = 20, color = 'currentColor', ...props }) => {
+                return React.createElement('span', {
+                    ...props,
+                    style: { fontSize: size, color, lineHeight: 1, display: 'inline-flex', alignItems: 'center' }
+                }, iconMap[name] || '•');
+            };
+        };
+        
+        const LayoutDashboard = createIconComponent('LayoutDashboard');
+        const GitBranch = createIconComponent('GitBranch');
+        const AlertCircle = createIconComponent('AlertCircle');
+        const Network = createIconComponent('Network');
+        const TestTube = createIconComponent('TestTube');
+        const Bug = createIconComponent('Bug');
+        const BarChart3 = createIconComponent('BarChart3');
+        const Settings = createIconComponent('Settings');
+        const Search = createIconComponent('Search');
+        const Bell = createIconComponent('Bell');
+        const GitCommit = createIconComponent('GitCommit');
+        const Users = createIconComponent('Users');
+        const Clock = createIconComponent('Clock');
+        const TrendingUp = createIconComponent('TrendingUp');
+        const TrendingDown = createIconComponent('TrendingDown');
+        const ChevronRight = createIconComponent('ChevronRight');
+        const X = createIconComponent('X');
+        const Check = createIconComponent('Check');
+        const AlertTriangle = createIconComponent('AlertTriangle');
+        const Info = createIconComponent('Info');
+        const FileText = createIconComponent('FileText');
+        const Package = createIconComponent('Package');
+        const Activity = createIconComponent('Activity');
+        const Zap = createIconComponent('Zap');
+        const Shield = createIconComponent('Shield');
+        const Eye = createIconComponent('Eye');
+        const Filter = createIconComponent('Filter');
+        const Plus = createIconComponent('Plus');
+        const Download = createIconComponent('Download');
+        const Upload = createIconComponent('Plus');
+        const ZoomIn = createIconComponent('Plus');
+        const ZoomOut = createIconComponent('X');
+        const Maximize2 = createIconComponent('Eye');
+        const Globe = createIconComponent('Network');
+        const Code = createIconComponent('FileText');
+        const Box = createIconComponent('Package');
+        const FileInput = createIconComponent('Download');
+        const List = createIconComponent('FileText');
+        const Tag = createIconComponent('Info');
+        const Sun = createIconComponent('Activity');
+        const Moon = createIconComponent('Clock');
+
+        // ==================== API CONFIGURATION ====================
+        // TODO: Replace with your actual backend URL
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        // ==================== API SERVICE ====================
+        const api = {
+            async uploadFiles(files, projectId) {
+                const formData = new FormData();
+                Array.from(files).forEach(file => {
+                    formData.append('files', file);
+                });
+                if (projectId) {
+                    formData.append('projectId', projectId);
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/parse`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Upload failed');
+                return await response.json();
+            },
+
+            async getProjects() {
+                const response = await fetch(`${API_BASE_URL}/projects`);
+                if (!response.ok) throw new Error('Failed to fetch projects');
+                return await response.json();
+            },
+
+            async getGraphData(projectId) {
+                const response = await fetch(`${API_BASE_URL}/graph/${projectId}`);
+                if (!response.ok) throw new Error('Failed to fetch graph data');
+                return await response.json();
+            }
+        };
+
+        // Mock Data
+
+        // Mock Data
+        // const mockChanges = [
+        //     {
+        //         id: 'CHG-2024-001',
+        //         title: 'Update Authentication API endpoint',
+        //         component: 'auth-service',
+        //         owner: 'Sarah Chen',
+        //         status: 'pending',
+        //         severity: 'high',
+        //         affectedComponents: 12,
+        //         submittedDate: '2024-02-09',
+        //         description: 'Migrating from v1 to v2 authentication flow'
+        //     },
+        //     {
+        //         id: 'CHG-2024-002',
+        //         title: 'Database schema migration for user preferences',
+        //         component: 'user-db',
+        //         owner: 'Mike Rodriguez',
+        //         status: 'approved',
+        //         severity: 'medium',
+        //         affectedComponents: 5,
+        //         submittedDate: '2024-02-08',
+        //         description: 'Adding new columns for user customization'
+        //     },
+        //     {
+        //         id: 'CHG-2024-003',
+        //         title: 'Frontend dependency upgrade (React 18)',
+        //         component: 'web-frontend',
+        //         owner: 'Emily Watson',
+        //         status: 'deployed',
+        //         severity: 'low',
+        //         affectedComponents: 3,
+        //         submittedDate: '2024-02-07',
+        //         description: 'Upgrading to latest React version'
+        //     },
+        //     {
+        //         id: 'CHG-2024-004',
+        //         title: 'Payment gateway integration update',
+        //         component: 'payment-service',
+        //         owner: 'James Liu',
+        //         status: 'rejected',
+        //         severity: 'high',
+        //         affectedComponents: 8,
+        //         submittedDate: '2024-02-06',
+        //         description: 'Switching to new payment provider'
+        //     }
+        // ];
+
+        // const mockComponents = [
+        //     {
+        //         id: 'comp-001',
+        //         name: 'auth-service',
+        //         description: 'Core authentication and authorization service',
+        //         owner: 'Security Team',
+        //         team: 'Platform',
+        //         dependencies: 8,
+        //         dependents: 15,
+        //         criticality: 'high'
+        //     },
+        //     {
+        //         id: 'comp-002',
+        //         name: 'user-db',
+        //         description: 'PostgreSQL database for user data',
+        //         owner: 'Data Team',
+        //         team: 'Infrastructure',
+        //         dependencies: 2,
+        //         dependents: 12,
+        //         criticality: 'high'
+        //     },
+        //     {
+        //         id: 'comp-003',
+        //         name: 'web-frontend',
+        //         description: 'React-based web application',
+        //         owner: 'Frontend Team',
+        //         team: 'Product',
+        //         dependencies: 5,
+        //         dependents: 0,
+        //         criticality: 'medium'
+        //     },
+        //     {
+        //         id: 'comp-004',
+        //         name: 'payment-service',
+        //         description: 'Payment processing and billing service',
+        //         owner: 'Finance Team',
+        //         team: 'Platform',
+        //         dependencies: 4,
+        //         dependents: 6,
+        //         criticality: 'high'
+        //     },
+        //     {
+        //         id: 'comp-005',
+        //         name: 'notification-service',
+        //         description: 'Email and push notification handler',
+        //         owner: 'Platform Team',
+        //         team: 'Platform',
+        //         dependencies: 3,
+        //         dependents: 10,
+        //         criticality: 'medium'
+        //     }
+        // ];
+
+        // const mockAcknowledgments = [
+        //     {
+        //         id: 'ack-001',
+        //         changeId: 'CHG-2024-001',
+        //         component: 'user-service',
+        //         owner: 'Alex Thompson',
+        //         status: 'pending',
+        //         impact: 'API contract changes require code updates'
+        //     },
+        //     {
+        //         id: 'ack-002',
+        //         changeId: 'CHG-2024-001',
+        //         component: 'mobile-app',
+        //         owner: 'Jessica Park',
+        //         status: 'pending',
+        //         impact: 'Mobile SDK needs authentication flow update'
+        //     },
+        //     {
+        //         id: 'ack-003',
+        //         changeId: 'CHG-2024-001',
+        //         component: 'admin-portal',
+        //         owner: 'Chris Anderson',
+        //         status: 'approved',
+        //         impact: 'Minor updates to admin login flow'
+        //     }
+        // ];
+
+        // // Icon Component Helper
+        // const Icon = ({ icon: IconComponent, ...props }) => {
+        //     return <IconComponent {...props} />;
+        // };
+
+        // Icon helper component
+        const Icon = ({ icon: IconComponent, size = 20 }) => {
+            return <IconComponent size={size} />;
+        };
+
+        // ==================== DEPENDENCY GRAPH COMPONENT ====================
+        const DependencyGraph = ({ graphData, selectedNode, onNodeSelect, impactedNodeIds }) => {
+            const containerRef = React.useRef(null);
+            const cyRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (!containerRef.current || !graphData) return;
+
+                const getNodeColor = (node) => {
+                    switch (node.type) {
+                        case 'CLASS': return '#3b82f6';
+                        case 'METHOD': return '#8b5cf6';
+                        case 'FUNCTION': return '#10b981';
+                        case 'IMPORT': return '#06b6d4';
+                        default: return '#6b7280';
+                    }
+                };
+
+                const elements = [
+                    ...graphData.nodes.map(node => ({
+                        data: {
+                            id: node.id,
+                            label: node.id.split('.').pop() || node.id,
+                            fullLabel: node.id,
+                            type: node.type,
+                            language: node.language,
+                            color: getNodeColor(node)
+                        }
+                    })),
+                    ...graphData.relations.map((rel, idx) => ({
+                        data: {
+                            id: `edge-${idx}`,
+                            source: rel.from,
+                            target: rel.to,
+                            type: rel.type
+                        }
+                    }))
+                ];
+
+                const cy = cytoscape({
+                    container: containerRef.current,
+                    elements: elements,
+                    style: [
+                        {
+                            selector: 'node',
+                            style: {
+                                'background-color': 'data(color)',
+                                'label': 'data(label)',
+                                'color': '#ffffff',
+                                'text-valign': 'center',
+                                'text-halign': 'center',
+                                'font-size': '10px',
+                                'width': '40px',
+                                'height': '40px',
+                                'border-width': '2px',
+                                'border-color': '#ffffff',
+                                'text-wrap': 'wrap',
+                                'text-max-width': '80px'
+                            }
+                        },
+                        {
+                            selector: 'node:selected',
+                            style: {
+                                'border-width': '3px',
+                                'border-color': '#f59e0b'
+                            }
+                        },
+                        {
+                            selector: '.impacted',
+                            style: {
+                                'background-color': '#ef4444',
+                                'border-color': '#f59e0b',
+                                'border-width': '3px'
+                            }
+                        },
+                        {
+                            selector: 'edge',
+                            style: {
+                                'width': 2,
+                                'line-color': '#2a3447',
+                                'target-arrow-color': '#2a3447',
+                                'target-arrow-shape': 'triangle',
+                                'curve-style': 'bezier',
+                                'arrow-scale': 1
+                            }
+                        },
+                        {
+                            selector: 'edge.impacted-edge',
+                            style: {
+                                'line-color': '#f59e0b',
+                                'target-arrow-color': '#f59e0b',
+                                'width': 3
+                            }
+                        }
+                    ],
+                    layout: {
+                        name: 'dagre',
+                        rankDir: 'TB',
+                        nodeSep: 50,
+                        rankSep: 100
+                    }
+                });
+
+                cy.on('tap', 'node', (evt) => {
+                    const node = evt.target.data();
+                    onNodeSelect({
+                        id: node.fullLabel,
+                        type: node.type,
+                        language: node.language
+                    });
+                });
+
+                if (impactedNodeIds.size > 0) {
+                    cy.nodes().removeClass('impacted');
+                    cy.edges().removeClass('impacted-edge');
+                    
+                    impactedNodeIds.forEach(nodeId => {
+                        cy.getElementById(nodeId).addClass('impacted');
+                    });
+
+                    cy.edges().forEach(edge => {
+                        if (impactedNodeIds.has(edge.target().id())) {
+                            edge.addClass('impacted-edge');
+                        }
+                    });
+                }
+
+                cyRef.current = cy;
+
+                return () => {
+                    cy.destroy();
+                };
+            }, [graphData, impactedNodeIds]);
+
+            const handleZoomIn = () => {
+                if (cyRef.current) {
+                    cyRef.current.zoom(cyRef.current.zoom() * 1.2);
+                }
+            };
+
+            const handleZoomOut = () => {
+                if (cyRef.current) {
+                    cyRef.current.zoom(cyRef.current.zoom() * 0.8);
+                }
+            };
+
+            const handleFit = () => {
+                if (cyRef.current) {
+                    cyRef.current.fit();
+                }
+            };
+
+            return (
+                <div className="card">
+                    <div className="graph-container">
+                        <div ref={containerRef} id="cy"></div>
+                        <div className="graph-controls">
+                            <button className="control-btn" onClick={handleZoomIn} title="Zoom In">
+                                <Icon icon={ZoomIn} size={18} />
+                            </button>
+                            <button className="control-btn" onClick={handleZoomOut} title="Zoom Out">
+                                <Icon icon={ZoomOut} size={18} />
+                            </button>
+                            <button className="control-btn" onClick={handleFit} title="Fit to Screen">
+                                <Icon icon={Maximize2} size={18} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Dashboard = ({ graphData, handleFileUpload, setCurrentView, projects }) => {
+            const stats = [
+                { 
+                    title: 'Total Nodes', 
+                    value: graphData ? graphData.nodes.length : 0, 
+                    change: '+12%', 
+                    positive: true,
+                    icon: Package,
+                    color: 'rgba(59, 130, 246, 0.2)'
+                },
+                { 
+                    title: 'Total Relations', 
+                    value: graphData ? graphData.relations.length : 0, 
+                    change: '+8%', 
+                    positive: true,
+                    icon: GitBranch,
+                    color: 'rgba(139, 92, 246, 0.2)'
+                },
+                { 
+                    title: 'Languages', 
+                    value: graphData ? new Set(graphData.nodes.map(n => n.language)).size : 0, 
+                    change: '+2', 
+                    positive: true,
+                    icon: Globe,
+                    color: 'rgba(16, 185, 129, 0.2)'
+                },
+                { 
+                    title: 'Projects', 
+                    value: projects.length, 
+                    change: '+1', 
+                    positive: true,
+                    icon: LayoutDashboard,
+                    color: 'rgba(6, 182, 212, 0.2)'
+                }
+            ];
+
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">📊 Dashboard</h1>
+                        <p className="page-subtitle">Overview of code analysis and dependencies</p>
+                    </div>
+
+                    <div className="card-grid">
+                        {stats.map((stat, index) => (
+                            <div key={index} className="card">
+                                <div className="card-icon" style={{ background: stat.color }}>
+                                    <Icon icon={stat.icon} size={20} color="var(--accent-primary)" />
+                                </div>
+                                <div className="card-title">{stat.title}</div>
+                                <div className="card-value">{stat.value}</div>
+                                <div className={`card-change ${stat.positive ? 'positive' : 'negative'}`}>
+                                    <Icon icon={stat.positive ? TrendingUp : TrendingDown} size={14} />
+                                    {stat.change} from last analysis
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="card">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                            <div className="card-icon" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                                <Icon icon={Upload} size={20} color="var(--accent-primary)" />
+                            </div>
+                            <div>
+                                <div className="card-title" style={{ marginBottom: '4px' }}>📤 Upload Code Files</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Drag and drop or click to browse</div>
+                            </div>
+                        </div>
+                        <div className="upload-zone" onClick={() => document.getElementById('fileInput').click()}>
+                            <Icon icon={Upload} size={48} color="var(--text-muted)" />
+                            <div style={{ fontSize: '16px', fontWeight: '500', marginTop: '16px', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                                Click to upload files or folders
+                            </div>
+                            <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                                Supports: .java, .py, .js, .ts, .cpp, .go, .rs, .php, .kt
+                            </div>
+                        </div>
+                        <input 
+                            id="fileInput" 
+                            type="file" 
+                            multiple 
+                            style={{ display: 'none' }}
+                            onChange={(e) => handleFileUpload(e.target.files)}
+                        />
+                    </div>
+
+                    {graphData && (
+                        <div className="card">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                <div className="card-icon" style={{ background: 'rgba(139, 92, 246, 0.1)' }}>
+                                    <Icon icon={BarChart3} size={20} color="var(--accent-secondary)" />
+                                </div>
+                                <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                                    Quick Stats
+                                </h3>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                                <div style={{ padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={Package} size={16} color="var(--accent-primary)" />
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Classes</div>
+                                    </div>
+                                    <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                        {graphData.nodes.filter(n => n.type === 'CLASS').length}
+                                    </div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={Zap} size={16} color="var(--accent-secondary)" />
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Functions</div>
+                                    </div>
+                                    <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                        {graphData.nodes.filter(n => n.type === 'FUNCTION' || n.type === 'METHOD').length}
+                                    </div>
+                                </div>
+                                <div style={{ padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={GitBranch} size={16} color="var(--info)" />
+                                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Imports</div>
+                                    </div>
+                                    <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                                        {graphData.nodes.filter(n => n.type === 'IMPORT').length}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Components View
+        const Components = ({ graphData, setSelectedNode, setCurrentView }) => {
+            const [filter, setFilter] = useState('all');
+            const components = graphData ? graphData.nodes : [];
+
+            const filteredComponents = filter === 'all' 
+                ? components 
+                : components.filter(c => c.type === filter);
+
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">🧩 Components</h1>
+                        <p className="page-subtitle">All code components in your project</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div className="filters-bar">
+                            {[
+                                { key: 'all', label: 'All Types' },
+                                { key: 'CLASS', label: 'CLASS' },
+                                { key: 'FUNCTION', label: 'FUNCTION' },
+                                { key: 'METHOD', label: 'METHOD' },
+                                { key: 'IMPORT', label: 'IMPORT' }
+                            ].map((f) => (
+                                <div
+                                    key={f.key}
+                                    className={`filter-chip ${filter === f.key ? 'active' : ''}`}
+                                    onClick={() => setFilter(f.key)}
+                                >
+                                    {f.label}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {graphData ? (
+                        <div className="table-container">
+                            <div className="table-header">
+                                <h2 className="table-title">Component List ({filteredComponents.length})</h2>
+                            </div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Language</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredComponents.slice(0, 50).map((node, i) => (
+                                        <tr key={i} onClick={() => {
+                                            setSelectedNode(node);
+                                            setCurrentView('dependencies');
+                                        }} style={{ cursor: 'pointer' }}>
+                                            <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{node.id}</td>
+                                            <td><span className="status-badge pending">{node.type}</span></td>
+                                            <td>{node.language}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+                            <div style={{ width: '64px', height: '64px', margin: '0 auto 16px', background: 'var(--bg-tertiary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Icon icon={Package} size={32} color="var(--text-muted)" />
+                            </div>
+                            <div style={{ fontSize: '18px', marginBottom: '16px', color: 'var(--text-primary)' }}>
+                                No data available 📂
+                            </div>
+                            <button className="btn btn-primary" onClick={() => setCurrentView('dashboard')}>
+                                <Icon icon={Upload} size={16} />
+                                Upload Files
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Changes View
+        const Changes = () => {
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">🔄Changes</h1>
+                        <p className="page-subtitle">Track code changes and their impact</p>
+                    </div>
+
+                    <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+                        <div style={{ width: '64px', height: '64px', margin: '0 auto 16px', background: 'var(--bg-tertiary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon icon={GitCommit} size={32} color="var(--text-muted)" />
+                        </div>
+                        <div style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            Change tracking coming soon 🚀
+                        </div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                            This feature will be available when backend integration is complete
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Change Submission Modal
+        const ChangeSubmissionModal = ({ onClose }) => {
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">Submit New Change</h2>
+                            <button className="icon-button" onClick={onClose}>
+                                <Icon icon={X} size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label className="form-label">Change Title</label>
+                                <input type="text" className="form-input" placeholder="Brief description of the change" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Affected Component</label>
+                                <select className="form-select">
+                                    <option>Select a component...</option>
+                                    {mockComponents.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Severity Level</label>
+                                <select className="form-select">
+                                    <option value="low">Low - Minor changes with minimal impact</option>
+                                    <option value="medium">Medium - Moderate impact requiring review</option>
+                                    <option value="high">High - Critical changes affecting multiple systems</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Description</label>
+                                <textarea className="form-textarea" placeholder="Detailed description of the change and its purpose..."></textarea>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Technical Documentation</label>
+                                <input type="file" className="form-input" />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            <button className="btn btn-primary">
+                                <Icon icon={Check} size={16} />
+                                Submit for Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Change Detail Modal
+        const ChangeDetailModal = ({ change, onClose }) => {
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" style={{ maxWidth: '800px' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div>
+                                <h2 className="modal-title">{change.id}</h2>
+                                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                    {change.title}
+                                </p>
+                            </div>
+                            <button className="icon-button" onClick={onClose}>
+                                <Icon icon={X} size={20} />
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="impact-header">
+                                <div className="impact-title">Impact Analysis</div>
+                                <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                                    <div className={`risk-score ${change.severity}`}>
+                                        <Icon icon={AlertTriangle} size={16} />
+                                        {change.severity.toUpperCase()} SEVERITY
+                                    </div>
+                                    <div style={{ 
+                                        padding: '8px 16px', 
+                                        background: 'rgba(139, 92, 246, 0.2)',
+                                        border: '1px solid var(--accent-secondary)',
+                                        borderRadius: '8px',
+                                        fontSize: '14px',
+                                        fontWeight: 600,
+                                        color: 'var(--accent-secondary)'
+                                    }}>
+                                        {change.affectedComponents} Components Affected
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
+                                    Description
+                                </h3>
+                                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                                    {change.description}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
+                                    Required Acknowledgments
+                                </h3>
+                                <div className="ack-list">
+                                    {mockAcknowledgments.map((ack) => (
+                                        <div key={ack.id} className="ack-item">
+                                            <div className="ack-info">
+                                                <div className="ack-component">{ack.component}</div>
+                                                <div className="ack-owner">Owner: {ack.owner}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                                    {ack.impact}
+                                                </div>
+                                            </div>
+                                            <span className={`status-badge ${ack.status}`}>
+                                                {ack.status === 'approved' && <Icon icon={Check} size={12} />}
+                                                {ack.status}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={onClose}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Dependency Graph View
+        const Dependencies = ({ graphData, selectedNode, setSelectedNode, impactedNodes, handleAnalyzeImpact, setCurrentView }) => {
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">🕸️ Dependency Graph</h1>
+                        <p className="page-subtitle">Visualize code dependencies and relationships</p>
+                    </div>
+
+                    {graphData ? (
+                        <>
+                            <DependencyGraph 
+                                graphData={graphData}
+                                selectedNode={selectedNode}
+                                onNodeSelect={setSelectedNode}
+                                impactedNodeIds={impactedNodes}
+                            />
+                            {selectedNode && (
+                                <div className="node-details animate-in">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                        <Icon icon={Box} size={18} color="var(--accent-primary)" />
+                                        <h3 style={{ margin: 0 }}>{selectedNode.id}</h3>
+                                    </div>
+                                    <div className="node-detail-item">
+                                        <Icon icon={Tag} size={14} color="var(--text-muted)" />
+                                        <span><strong>Type:</strong> {selectedNode.type}</span>
+                                    </div>
+                                    <div className="node-detail-item">
+                                        <Icon icon={Globe} size={14} color="var(--text-muted)" />
+                                        <span><strong>Language:</strong> {selectedNode.language}</span>
+                                    </div>
+                                    <button 
+                                        className="btn btn-primary" 
+                                        style={{ marginTop: '12px', width: '100%' }}
+                                        onClick={() => handleAnalyzeImpact(selectedNode)}
+                                    >
+                                        <Icon icon={Zap} size={16} />
+                                        Analyze Impact
+                                    </button>
+                                    {impactedNodes.size > 0 && (
+                                        <div style={{ marginTop: '12px', padding: '8px', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '6px' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--warning)' }}>
+                                                <strong>{impactedNodes.size}</strong> nodes impacted
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+                            <div style={{ width: '64px', height: '64px', margin: '0 auto 16px', background: 'var(--bg-tertiary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Icon icon={Network} size={32} color="var(--text-muted)" />
+                            </div>
+                            <div style={{ fontSize: '18px', marginBottom: '16px', color: 'var(--text-primary)' }}>
+                                No graph data available 🕸️
+                            </div>
+                            <button className="btn btn-primary" onClick={() => setCurrentView('dashboard')}>
+                                <Icon icon={Upload} size={16} />
+                                Upload Files
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Acknowledgments View
+        const Acknowledgments = () => {
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">✅ Acknowledgments</h1>
+                        <p className="page-subtitle">Review and approve changes</p>
+                    </div>
+
+                    <div className="card-grid">
+                        <div className="card">
+                            <div className="card-icon" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+                                <Icon icon={Clock} size={20} color="var(--warning)" />
+                            </div>
+                            <div className="card-title">Pending</div>
+                            <div className="card-value">0</div>
+                        </div>
+                        <div className="card">
+                            <div className="card-icon" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                                <Icon icon={Check} size={20} color="var(--success)" />
+                            </div>
+                            <div className="card-title">Approved</div>
+                            <div className="card-value">0</div>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+                        <div style={{ width: '64px', height: '64px', margin: '0 auto 16px', background: 'var(--bg-tertiary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon icon={Check} size={32} color="var(--text-muted)" />
+                        </div>
+                        <div style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text-primary)' }}>
+                            No acknowledgments pending ✨
+                        </div>
+                        <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                            This feature will be available when backend integration is complete
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Analytics View
+       const Analytics = ({ graphData, setCurrentView }) => {
+            return (
+                <div className="animate-in">
+                    <div className="page-header">
+                        <h1 className="page-title">📈 Analytics</h1>
+                        <p className="page-subtitle">Code metrics and statistics</p>
+                    </div>
+
+                    {graphData ? (
+                        <>
+                            <div className="card-grid">
+                                <div className="card">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={Box} size={18} color="var(--accent-primary)" />
+                                        <div className="card-title">Total Classes</div>
+                                    </div>
+                                    <div className="card-value">
+                                        {graphData.nodes.filter(n => n.type === 'CLASS').length}
+                                    </div>
+                                </div>
+                                <div className="card">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={Code} size={18} color="var(--accent-secondary)" />
+                                        <div className="card-title">Total Methods/Functions</div>
+                                    </div>
+                                    <div className="card-value">
+                                        {graphData.nodes.filter(n => n.type === 'METHOD' || n.type === 'FUNCTION').length}
+                                    </div>
+                                </div>
+                                <div className="card">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={FileInput} size={18} color="var(--success)" />
+                                        <div className="card-title">Total Imports</div>
+                                    </div>
+                                    <div className="card-value">
+                                        {graphData.nodes.filter(n => n.type === 'IMPORT').length}
+                                    </div>
+                                </div>
+                                <div className="card">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <Icon icon={Globe} size={18} color="var(--info)" />
+                                        <div className="card-title">Languages</div>
+                                    </div>
+                                    <div className="card-value">
+                                        {new Set(graphData.nodes.map(n => n.language)).size}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="card">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                                    <div className="card-icon" style={{ background: 'rgba(6, 182, 212, 0.1)' }}>
+                                        <Icon icon={BarChart3} size={20} color="var(--info)" />
+                                    </div>
+                                    <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                                        🌍 Language Distribution
+                                    </h3>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {Array.from(new Set(graphData.nodes.map(n => n.language))).map(lang => {
+                                        const count = graphData.nodes.filter(n => n.language === lang).length;
+                                        const percentage = ((count / graphData.nodes.length) * 100).toFixed(1);
+                                        return (
+                                            <div key={lang}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                                    <span style={{ fontSize: '14px', color: 'var(--text-primary)' }}>{lang}</span>
+                                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>{count} ({percentage}%)</span>
+                                                </div>
+                                                <div style={{ height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                                                    <div style={{ width: `${percentage}%`, height: '100%', background: 'var(--accent-primary)', transition: 'width 0.3s' }}></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="card" style={{ textAlign: 'center', padding: '48px' }}>
+                            <div style={{ width: '64px', height: '64px', margin: '0 auto 16px', background: 'var(--bg-tertiary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Icon icon={BarChart3} size={32} color="var(--text-muted)" />
+                            </div>
+                            <div style={{ fontSize: '18px', marginBottom: '16px', color: 'var(--text-primary)' }}>
+                                No data available 📊
+                            </div>
+                            <button className="btn btn-primary" onClick={() => setCurrentView('dashboard')}>
+                                <Icon icon={Upload} size={16} />
+                                Upload Files
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [theme, setTheme] = useState('dark');
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [projects, setProjects] = useState([
+                { id: 1, name: 'Demo Project', language: 'Multi' }
+            ]);
+            const [selectedProject, setSelectedProject] = useState(1);
+            const [graphData, setGraphData] = useState(null);
+            const [selectedNode, setSelectedNode] = useState(null);
+            const [impactedNodes, setImpactedNodes] = useState(new Set());
+            const [loading, setLoading] = useState(false);
+            const [loadingMessage, setLoadingMessage] = useState('');
+
+            // Load projects on mount
+            useEffect(() => {
+                loadProjects();
+            }, []);
+
+            // Load graph data when project changes
+            useEffect(() => {
+                if (selectedProject) {
+                    loadGraphData(selectedProject);
+                }
+            }, [selectedProject]);
+
+            // Update theme
+            useEffect(() => {
+                document.body.className = theme;
+            }, [theme]);
+
+            const loadProjects = async () => {
+                try {
+                    const data = await api.getProjects();
+                    if (data && data.length > 0) {
+                        setProjects(data);
+                        setSelectedProject(data[0].id);
+                    }
+                } catch (error) {
+                    console.log('Could not load projects from backend. Using demo project.');
+                }
+            };
+
+            const loadGraphData = async (projectId) => {
+                try {
+                    setLoading(true);
+                    setLoadingMessage('Loading project data...');
+                    const data = await api.getGraphData(projectId);
+                    setGraphData(data);
+                    setLoading(false);
+                } catch (error) {
+                    console.log('Could not load graph data from backend.');
+                    setLoading(false);
+                }
+            };
+
+            const handleFileUpload = async (files) => {
+                setLoading(true);
+                setLoadingMessage('Parsing files...');
+                
+                try {
+                    const data = await api.uploadFiles(files, selectedProject);
+                    setGraphData(data);
+                    setLoading(false);
+                    setCurrentView('dependencies');
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                    setLoading(false);
+                    alert('Upload failed. Please make sure the backend is running at ' + API_BASE_URL);
+                }
+            };
+
+            const handleAnalyzeImpact = (node) => {
+                if (!graphData) return;
+                
+                const impacted = new Set();
+                const traverse = (nodeId) => {
+                    graphData.relations.forEach(rel => {
+                        if (rel.from === nodeId && !impacted.has(rel.to)) {
+                            impacted.add(rel.to);
+                            traverse(rel.to);
+                        }
+                    });
+                };
+                
+                traverse(node.id);
+                setImpactedNodes(impacted);
+            };
+
+            const navigation = [
+                { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+                { id: 'components', label: 'Components', icon: Package },
+                { id: 'changes', label: 'Changes', icon: GitCommit },
+                { id: 'dependencies', label: 'Dependencies', icon: Network },
+                { id: 'acknowledgments', label: 'Acknowledgments', icon: AlertCircle },
+                { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+            ];
+
+            const renderView = () => {
+                switch (currentView) {
+                    case 'dashboard': 
+                        return <Dashboard 
+                            graphData={graphData} 
+                            handleFileUpload={handleFileUpload}
+                            setCurrentView={setCurrentView}
+                            projects={projects}
+                        />;
+                    case 'components': 
+                        return <Components 
+                            graphData={graphData}
+                            setSelectedNode={setSelectedNode}
+                            setCurrentView={setCurrentView}
+                        />;
+                    case 'changes': 
+                        return <Changes />;
+                    case 'dependencies': 
+                        return <Dependencies 
+                            graphData={graphData}
+                            selectedNode={selectedNode}
+                            setSelectedNode={setSelectedNode}
+                            impactedNodes={impactedNodes}
+                            handleAnalyzeImpact={handleAnalyzeImpact}
+                            setCurrentView={setCurrentView}
+                        />;
+                    case 'acknowledgments': 
+                        return <Acknowledgments />;
+                    case 'analytics': 
+                        return <Analytics 
+                            graphData={graphData}
+                            setCurrentView={setCurrentView}
+                        />;
+                    default: 
+                        return <Dashboard 
+                            graphData={graphData}
+                            handleFileUpload={handleFileUpload}
+                            setCurrentView={setCurrentView}
+                            projects={projects}
+                        />;
+                }
+            };
+
+            return (
+                <>
+                    {loading && (
+                        <div className="loading-overlay">
+                            <div className="loading-spinner"></div>
+                            <div className="loading-text">{loadingMessage}</div>
+                        </div>
+                    )}
+                    
+                    <div className="app-container">
+                        <div className="sidebar">
+                            <div className="sidebar-header">
+                                <div className="logo">
+                                    <div className="logo-icon">
+                                        <Icon icon={Zap} size={20} />
+                                    </div>
+                                    <span>Ripple</span>
+                                </div>
+                            </div>
+                            <nav className="sidebar-nav">
+                                <div className="nav-section">
+                                    <div className="nav-section-title">Main</div>
+                                    {navigation.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+                                            onClick={() => setCurrentView(item.id)}
+                                        >
+                                            <Icon icon={item.icon} />
+                                            <span>{item.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </nav>
+                        </div>
+
+                        <div className="main-content">
+                            <div className="topbar">
+                                <div className="search-bar">
+                                   
+                                    <input type="text" placeholder="Search components, files..." />
+                                </div>
+                                <div className="topbar-actions">
+                                    <div className="project-dropdown">
+                                        <select value={selectedProject} onChange={(e) => setSelectedProject(Number(e.target.value))}>
+                                            {projects.map(p => (
+                                                <option key={p.id} value={p.id}>{p.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button className="icon-button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} title="Toggle Theme">
+                                        <Icon icon={theme === 'dark' ? Sun : Moon} size={20} />
+                                    </button>
+                                    <button className="icon-button">
+                                        <Icon icon={Settings} size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="content-area">
+                                {renderView()}
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
+        };
+        try {
+            const rootEl = document.getElementById('root');
+            if (!rootEl) throw new Error('Root element not found');
+            if (ReactDOM.createRoot) {
+                ReactDOM.createRoot(rootEl).render(<App />);
+            } else {
+                ReactDOM.render(<App />, rootEl);
+            }
+        } catch (err) {
+            console.error('Render error:', err);
+            document.body.innerHTML = `<pre style="color: white; padding: 20px;">Render error: ${err && err.message}\nCheck developer console for details.</pre>`;
+        }
+    </script>
+</body>
+</html>
