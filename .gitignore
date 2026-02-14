@@ -12,3 +12,16 @@ target/
 # Ignore OS Files
 .DS_Store
 Thumbs.db
+
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Outputs
+parser/output/
+
+# OS junk
+.DS_Store
+
