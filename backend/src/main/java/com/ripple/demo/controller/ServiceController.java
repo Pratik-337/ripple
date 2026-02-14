@@ -1,27 +1,23 @@
 package com.ripple.demo.controller;
 
-import com.ripple.demo.entity.CodeNode;
-import com.ripple.demo.repository.CodeRepository;
+import com.ripple.demo.dto.ParserOutputDTO;
+import com.ripple.demo.service.GraphIngestService;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/graph")
-@CrossOrigin(origins = "*") // allows any data access from any origin, change to specific frontend domain later
+@CrossOrigin(origins = "*")
+public class ServiceController {
 
-public class ServiceController
-{
-    private final CodeRepository codeRepository;
+    private final GraphIngestService graphIngestService;
 
-    public ServiceController(CodeRepository codeRepository)
-    {
-        this.codeRepository = codeRepository;
+    public ServiceController(GraphIngestService graphIngestService) {
+        this.graphIngestService = graphIngestService;
     }
 
-    @GetMapping
-    public List<CodeNode> getGraph()
-    {
-        return codeRepository.findAll();
+    @GetMapping("/{projectId}")
+    public ParserOutputDTO getGraph(@PathVariable String projectId) {
+        return graphIngestService.fetchGraph();
     }
-
 }
