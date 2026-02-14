@@ -3,58 +3,44 @@ from core.relation import Relation
 from core.traversal import traverse
 from core.util import normalize_call_name
 
-
 def parse_go(tree, source_code, filename, symbol_table):
     root = tree.root_node
-    nodes = []
-    relations = []
-
+    nodes, relations = [], []
     src = source_code.encode("utf8")
 
-    # ===============================
-    # IMPORTS
-    # ===============================
+    # -------- IMPORTS --------
     for child in root.children:
         if child.type == "import_declaration":
             for node in traverse(child):
                 if node.type == "interpreted_string_literal":
-                    module = src[
-                        node.start_byte:node.end_byte
-                    ].decode("utf8").strip('"')
-
+                    module = src[node.start_byte:node.end_byte].decode("utf8").strip('"')
                     nodes.append(Node(module, "IMPORT", "GO"))
                     symbol_table.add_import(filename, module)
 
-    # ===============================
-    # FUNCTIONS
-    # ===============================
+    # -------- FUNCTIONS --------
     for child in root.children:
         if child.type == "function_declaration":
             name_node = child.child_by_field_name("name")
             if not name_node:
                 continue
 
-            fn = src[
-                name_node.start_byte:name_node.end_byte
-            ].decode("utf8")
-
+            fn = src[name_node.start_byte:name_node.end_byte].decode("utf8")
             fn_id = f"{filename}.{fn}"
 
-            symbol_table.add_function(filename, fn)
             nodes.append(Node(fn_id, "FUNCTION", "GO"))
+            symbol_table.add_function(filename, fn)
 
-            # -------- FUNCTION CALLS --------
             for node in traverse(child):
                 if node.type == "call_expression":
-                    func = node.child_by_field_name("function")
-                    if func:
-                        raw = src[
-                            func.start_byte:func.end_byte
-                        ].decode("utf8")
-
+                    fn_node = node.child_by_field_name("function")
+                    if fn_node:
+                        raw = src[fn_node.start_byte:fn_node.end_byte].decode("utf8")
                         called = normalize_call_name(raw)
-                        relations.append(
-                            Relation(fn_id, called, "CALLS")
+
+                        resolved = symbol_table.resolve(
+                            None, filename, called
                         )
+
+                        relations.append(Relation(fn_id, resolved, "CALLS"))
 
     return nodes, relations

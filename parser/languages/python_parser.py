@@ -24,11 +24,20 @@ def parse_python(tree, source_code, filename, symbol_table):
 
         elif child.type == "import_from_statement":
             module_node = child.child_by_field_name("module")
+            names_node = child.child_by_field_name("name")
+
             if module_node:
+                imports.append(module)   # ← THIS LINE
                 module = src[module_node.start_byte:module_node.end_byte].decode("utf8")
-                imports.append(module)
                 symbol_table.add_import(filename, module)
                 nodes.append(Node(module, "IMPORT", "PYTHON"))
+
+                # NEW: track imported symbols
+                for name in child.children:
+                    if name.type == "identifier":
+                        imported_fn = name.text.decode("utf8")
+                        symbol_table.add_function(module, imported_fn)
+
 
     # -------- FUNCTIONS --------
     for child in root.children:
@@ -42,7 +51,7 @@ def parse_python(tree, source_code, filename, symbol_table):
         fn = src[name_node.start_byte:name_node.end_byte].decode("utf8")
         fn_id = f"{filename}.{fn}"
 
-        symbol_table.add_function(filename, fn)
+        symbol_table.add_function(f"{filename}", fn)
 
         nodes.append(Node(fn_id, "FUNCTION", "PYTHON"))
 
@@ -57,5 +66,11 @@ def parse_python(tree, source_code, filename, symbol_table):
                 if call_node:
                     raw_called = src[node.start_byte:node.end_byte].decode("utf8")
                     called = normalize_call_name(raw_called)
-                    relations.append(Relation(fn_id, called, "CALLS"))
+                    resolved = symbol_table.resolve(
+                        current_class=None,        # Python has no class here
+                        current_file=filename,
+                        call_name=called
+                    )
+                    relations.append(Relation(fn_id, resolved, "CALLS"))
+
     return nodes, relations

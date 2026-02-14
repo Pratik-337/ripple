@@ -18,12 +18,30 @@ class SymbolTable:
         self.imports.setdefault(file, set()).add(import_name)
 
     def resolve(self, current_class, current_file, call_name):
+        # 1️⃣ same class
         if current_class and current_class in self.methods:
             if call_name in self.methods[current_class]:
                 return f"{current_class}.{call_name}"
 
+        # 2️⃣ same file
         if current_file in self.functions:
             if call_name in self.functions[current_file]:
                 return f"{current_file}.{call_name}"
 
+        # 3️⃣ imported files (NEW)
+        cross = self.resolve_cross_file(current_file, call_name)
+        if cross:
+            return cross
+
+        # 4️⃣ unresolved
         return call_name
+
+    def resolve_cross_file(self, current_file, call_name):
+        """
+        Try to resolve call_name in imported files
+        """
+        for imported in self.imports.get(current_file, []):
+            if imported in self.functions:
+                if call_name in self.functions[imported]:
+                    return f"{imported}.{call_name}"
+        return None

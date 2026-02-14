@@ -8,23 +8,37 @@ def parse_rust(tree, source_code, filename, symbol_table):
     nodes, relations = [], []
     src = source_code.encode("utf8")
 
+    # -------- IMPORTS --------
     for child in root.children:
         if child.type == "use_declaration":
-            module = src[child.start_byte:child.end_byte].decode("utf8")
-            nodes.append(Node(module, "IMPORT", "RUST"))
-            symbol_table.add_import(filename, module)
+            use_text = src[child.start_byte:child.end_byte].decode("utf8")
+            nodes.append(Node(use_text, "IMPORT", "RUST"))
+            symbol_table.add_import(filename, use_text)
 
+    # -------- FUNCTIONS --------
+    for child in root.children:
         if child.type == "function_item":
-            name = child.child_by_field_name("name")
-            if name:
-                fn = src[name.start_byte:name.end_byte].decode("utf8")
-                fn_id = f"{filename}.{fn}"
-                symbol_table.add_function(filename, fn)
-                nodes.append(Node(fn_id, "FUNCTION", "RUST"))
+            name_node = child.child_by_field_name("name")
+            if not name_node:
+                continue
 
-                for n in traverse(child):
-                    if n.type == "call_expression":
-                        raw_called = src[n.start_byte:n.end_byte].decode("utf8")
-                        called = normalize_call_name(raw_called)
-                        relations.append(Relation(fn_id, called, "CALLS"))
+            fn = src[name_node.start_byte:name_node.end_byte].decode("utf8")
+            fn_id = f"{filename}.{fn}"
+
+            nodes.append(Node(fn_id, "FUNCTION", "RUST"))
+            symbol_table.add_function(filename, fn)
+
+            for n in traverse(child):
+                if n.type == "call_expression":
+                    fn_node = n.child_by_field_name("function")
+                    if fn_node:
+                        raw = src[fn_node.start_byte:fn_node.end_byte].decode("utf8")
+                        called = normalize_call_name(raw)
+
+                        resolved = symbol_table.resolve(
+                            None, filename, called
+                        )
+
+                        relations.append(Relation(fn_id, resolved, "CALLS"))
+
     return nodes, relations

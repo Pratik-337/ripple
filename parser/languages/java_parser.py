@@ -83,10 +83,10 @@ def parse_java(tree, source_code, filename, symbol_table):
                     # -------------------------------
                     # METHOD ANNOTATIONS
                     # -------------------------------
-                    for ann in member.children:
-                        if ann.type == "annotation":
+                    for n in traverse(member):
+                        if n.type == "annotation":
                             ann_text = src[
-                                ann.start_byte:ann.end_byte
+                                n.start_byte:n.end_byte
                             ].decode("utf8")
 
                             for spring_ann in SPRING_ANNOTATIONS:
@@ -94,7 +94,6 @@ def parse_java(tree, source_code, filename, symbol_table):
                                     relations.append(
                                         Relation(ann_text, method_id, "ANNOTATED_WITH")
                                     )
-
                     # -------------------------------
                     # METHOD CALLS
                     # -------------------------------
@@ -110,7 +109,7 @@ def parse_java(tree, source_code, filename, symbol_table):
 
                                 resolved = symbol_table.resolve(
                                     current_class=class_name,
-                                    current_file=None,
+                                    current_file=filename,
                                     call_name=called
                                 )
 

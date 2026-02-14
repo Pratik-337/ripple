@@ -1,19 +1,17 @@
 from pathlib import Path
-from core.call_resolver import resolve_calls
 import json
 import requests
 
-# ---------------- CORE ----------------
 from core.ast_loader import parse_code
 from core.graph import Graph
 from core.symbol_table import SymbolTable
+from core.call_resolver import resolve_calls
+from core.impact import propagate_impact
+from core.cross_language import build_cross_language_links
+from core.cross_language_linker import link
+from core.api_linker import link_api_calls
 
-# ---------------- REGISTRY ----------------
-from language_registry import (
-    EXTENSION_MAP,
-    TREE_SITTER_LANG,
-    PARSER_MAP
-)
+from language_registry import EXTENSION_MAP, TREE_SITTER_LANG, PARSER_MAP
 
 # ---------------- PARSERS ----------------
 from languages.java_parser import parse_java
@@ -27,10 +25,6 @@ from languages.rust_parser import parse_rust
 from languages.php_parser import parse_php
 from languages.kotlin_parser import parse_kotlin
 
-from core.cross_language_linker import link
-
-
-# ---------------- REGISTER PARSERS ----------------
 PARSER_MAP.update({
     "JAVA": parse_java,
     "PYTHON": parse_python,
@@ -53,7 +47,7 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 graph = Graph()
 symbol_table = SymbolTable()
 
-# ---------------- MAIN LOOP ----------------
+# ---------------- PARSE FILES ----------------
 for file in PROJECT_ROOT.rglob("*"):
     if not file.is_file():
         continue
@@ -63,37 +57,45 @@ for file in PROJECT_ROOT.rglob("*"):
         continue
 
     language = EXTENSION_MAP[ext]
-
     if language not in PARSER_MAP:
-        continue  # parser not implemented yet
+        continue
 
     try:
-        with open(file, "r", encoding="utf8", errors="ignore") as f:
-            code = f.read()
-
+        code = file.read_text(encoding="utf8", errors="ignore")
         tree = parse_code(code, TREE_SITTER_LANG[language])
 
         nodes, relations = PARSER_MAP[language](
-            tree,
-            code,
-            file.stem,
-            symbol_table
+            tree, code, file.stem, symbol_table
         )
 
         for node in nodes:
             graph.add_node(node)
-
-        for relation in relations:
-            graph.add_relation(relation)
+        for rel in relations:
+            graph.add_relation(rel)
 
     except Exception as e:
         raise e
 
-# ---------------- OUTPUT ----------------
+# ---------------- ENRICH GRAPH ----------------
 graph = link(graph)
-graph = resolve_calls(graph, symbol_table)
-output = graph.export()
 
+cross_links = build_cross_language_links(list(graph.nodes.values()))
+for rel in cross_links:
+    graph.add_relation(rel)
+
+graph = link_api_calls(graph)
+graph = resolve_calls(graph, symbol_table)
+
+# ---------------- IMPACT ANALYSIS ----------------
+IMPACT_START = "UserController.getUsers"
+impacts = propagate_impact(graph, IMPACT_START)
+
+print("\nIMPACT ANALYSIS:")
+for node_id, info in impacts.items():
+    print(f"{node_id} (depth={info['depth']}, via={info['via']})")
+
+# ---------------- OUTPUT ----------------
+output = graph.export()
 with open(OUTPUT_DIR / "graph.json", "w", encoding="utf8") as f:
     json.dump(output, f, indent=2)
 

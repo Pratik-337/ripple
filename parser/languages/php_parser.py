@@ -36,10 +36,16 @@ def parse_php(tree, source_code, filename, symbol_table):
 
             for n in traverse(child):
                 if n.type == "function_call_expression":
-                    call = n.child_by_field_name("name")
-                    if call:
-                        called = src[call.start_byte:call.end_byte].decode("utf8")
-                        relations.append(Relation(fn_id, called, "CALLS"))
+                    call_node = n.child_by_field_name("function")
+                    if call_node:
+                        raw = src[call_node.start_byte:call_node.end_byte].decode("utf8")
+                        called = normalize_call_name(raw)
+
+                        resolved = symbol_table.resolve(
+                            None, filename, called
+                        )
+
+                        relations.append(Relation(fn_id, resolved, "CALLS"))
 
     # ===============================
     # CLASSES + METHODS

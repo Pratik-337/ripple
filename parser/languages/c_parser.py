@@ -2,12 +2,13 @@ from core.node import Node
 from core.relation import Relation
 from core.traversal import traverse
 from core.util import normalize_call_name
+
 def parse_c(tree, source_code, filename, symbol_table):
     root = tree.root_node
     nodes, relations = [], []
     src = source_code.encode("utf8")
 
-    # -------- IMPORTS (#include) --------
+    # -------- IMPORTS --------
     for child in root.children:
         if child.type == "preproc_include":
             include_text = src[child.start_byte:child.end_byte].decode("utf8")
@@ -38,6 +39,13 @@ def parse_c(tree, source_code, filename, symbol_table):
                     if fn:
                         raw = src[fn.start_byte:fn.end_byte].decode("utf8")
                         called = normalize_call_name(raw)
-                        relations.append(Relation(fn_id, called, "CALLS"))
+
+                        resolved = symbol_table.resolve(
+                            current_class=None,
+                            current_file=filename,
+                            call_name=called
+                        )
+
+                        relations.append(Relation(fn_id, resolved, "CALLS"))
 
     return nodes, relations
