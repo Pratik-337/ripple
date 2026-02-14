@@ -1,32 +1,27 @@
 package com.ripple.demo.controller;
 
-import com.ripple.demo.entity.ServiceNode;
-import com.ripple.demo.repository.ServiceRepository;
+import com.ripple.demo.entity.CodeNode;
+import com.ripple.demo.repository.CodeRepository;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/services")
+@RequestMapping("/api/graph")
 @CrossOrigin(origins = "*") // allows any data access from any origin, change to specific frontend domain later
 
 public class ServiceController
 {
-    private final ServiceRepository serviceRepository;
+    private final CodeRepository codeRepository;
 
-    public ServiceController(ServiceRepository serviceRepository)
+    public ServiceController(CodeRepository codeRepository)
     {
-        this.serviceRepository = serviceRepository;
+        this.codeRepository = codeRepository;
     }
 
     @GetMapping
-    public List<ServiceNode> findAll()
+    public List<CodeNode> getGraph()
     {
-        return serviceRepository.findAll();
+        return codeRepository.findAll();
     }
 
-    @PostMapping
-    public ServiceNode save(@RequestBody ServiceNode service)
-    {
-        return serviceRepository.save(service);
-    }
 }
