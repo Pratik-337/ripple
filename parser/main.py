@@ -1,6 +1,7 @@
 from pathlib import Path
 from core.call_resolver import resolve_calls
 import json
+import requests
 
 # ---------------- CORE ----------------
 from core.ast_loader import parse_code
@@ -86,7 +87,7 @@ for file in PROJECT_ROOT.rglob("*"):
             graph.add_relation(relation)
 
     except Exception as e:
-        print(f"[SKIPPED] {file.name}: {e}")
+        raise e
 
 # ---------------- OUTPUT ----------------
 graph = link(graph)
@@ -97,3 +98,21 @@ with open(OUTPUT_DIR / "graph.json", "w", encoding="utf8") as f:
     json.dump(output, f, indent=2)
 
 print(json.dumps(output, indent=2))
+
+BACKEND_URL = "http://localhost:8080/api/ingest"
+
+print(f"\n Sending {len(output['nodes'])} nodes and {len(output['relations'])} relations to Backend...")
+
+try:
+    response = requests.post(BACKEND_URL, json=output)
+    
+    if response.status_code == 200:
+        print("SUCCESS: Data ingested by Backend")
+    else:
+        print(f"ERROR: Backend returned {response.status_code}")
+        print(response.text)
+
+except requests.exceptions.ConnectionError:
+    print("CONNECTION FAILED: Is the Java Backend running on port 8080?")
+except Exception as e:
+    print(f"UNEXPECTED ERROR: {e}")
