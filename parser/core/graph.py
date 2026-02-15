@@ -1,7 +1,7 @@
 class Graph:
     def __init__(self):
-        self.nodes = {}
-        self.relations = set()  # stores (from, to, type)
+        self.nodes = {}              # key -> Node
+        self.relations = set()       # (from, to, type)
 
     def add_node(self, node):
         key = (node.id, node.type, node.language)
@@ -14,7 +14,7 @@ class Graph:
 
     def export(self):
         return {
-            "nodes": [n.to_dict() for n in self.nodes.values()],
+            "nodes": [node.to_dict() for node in self.nodes.values()],
             "relations": [
                 {
                     "from": src,

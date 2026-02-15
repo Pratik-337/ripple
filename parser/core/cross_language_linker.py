@@ -19,46 +19,42 @@ SPRING_MAPPING_ANNOTATIONS = [
 
 def link(graph):
     """
-    Adds cross-language REST API links:
-    Frontend (JS/TS) -> Backend (Java Spring)
+    Links frontend JS/TS HTTP calls to backend Java Spring APIs
     """
     api_endpoints = []
     frontend_calls = []
 
-    # ---------------------------------
+    # ===============================
     # 1. Collect backend API endpoints
-    # ---------------------------------
-    for node in graph.nodes.values():
-        if node.language == "JAVA" and node.type == "METHOD":
-            for (src, tgt, typ) in graph.relations:
-                if tgt == node.id and typ == "ANNOTATED_WITH":
-                    for ann in SPRING_MAPPING_ANNOTATIONS:
-                        if ann in src:
-                            path = extract_path(src)
-                            if path:
-                                api_endpoints.append({
-                                    "path": path,
-                                    "method": ann.upper(),
-                                    "target": node.id
-                                })
-
-    # ---------------------------------
-    # 2. Collect frontend HTTP calls
-    # ---------------------------------
+    # ===============================
     for (src, tgt, typ) in graph.relations:
-        if typ == "CALLS":
-            for pattern in HTTP_CALL_PATTERNS:
-                if pattern in tgt:
-                    path = extract_url(tgt)
+        if typ == "ANNOTATED_WITH":
+            for ann in SPRING_MAPPING_ANNOTATIONS:
+                if ann in src:
+                    path = extract_path(src)
                     if path:
-                        frontend_calls.append({
-                            "caller": src,
-                            "path": path
+                        api_endpoints.append({
+                            "path": path,
+                            "target": tgt
                         })
 
-    # ---------------------------------
-    # 3. Match frontend -> backend
-    # ---------------------------------
+    # ===============================
+    # 2. Collect frontend HTTP calls
+    # ===============================
+    for (src, tgt, typ) in graph.relations:
+        if typ == "CALLS":
+            if any(p in tgt for p in HTTP_CALL_PATTERNS):
+                path = extract_url(tgt)
+                if path:
+                    frontend_calls.append({
+                        "caller": src,
+                        "path": path
+                    })
+
+    # ===============================
+    # 3. Link frontend → backend
+    # ===============================
+    added = 0
     for call in frontend_calls:
         for api in api_endpoints:
             if normalize(call["path"]) == normalize(api["path"]):
@@ -69,25 +65,30 @@ def link(graph):
                         "CALLS_API"
                     )
                 )
+                added += 1
 
+    print(f"API edges added: {added}")
     return graph
 
 
-# ------------------ helpers ------------------
+# ===============================
+# Helpers
+# ===============================
 
 def extract_path(annotation_text):
     """
-    Extracts path from @GetMapping("/api/x")
+    @GetMapping("/users") -> /users
     """
-    match = re.search(r'\"(.*?)\"', annotation_text)
+    match = re.search(r'"(.*?)"', annotation_text)
     return match.group(1) if match else None
 
 
 def extract_url(call_text):
     """
-    Extracts URL from fetch("/api/x") or axios.get("/api/x")
+    fetch("/users") -> /users
+    axios.get("/users") -> /users
     """
-    match = re.search(r'\"(.*?)\"', call_text)
+    match = re.search(r'"(.*?)"', call_text)
     return match.group(1) if match else None
 
 

@@ -8,28 +8,16 @@ def parse_kotlin(tree, source_code, filename, symbol_table):
     nodes, relations = [], []
     src = source_code.encode("utf8")
 
-    # ===============================
-    # IMPORTS
-    # ===============================
-    for child in root.children:
-        if child.type == "import_header":
-            text = src[child.start_byte:child.end_byte].decode("utf8")
-            module = text.replace("import", "").strip()
-            nodes.append(Node(module, "IMPORT", "KOTLIN"))
-            symbol_table.add_import(filename, module)
+    current_class = None
 
-    # ===============================
-    # CLASSES + METHODS
-    # ===============================
     for child in root.children:
         if child.type == "class_declaration":
             name_node = child.child_by_field_name("name")
             if not name_node:
                 continue
 
-            class_name = src[
-                name_node.start_byte:name_node.end_byte
-            ].decode("utf8")
+            class_name = src[name_node.start_byte:name_node.end_byte].decode("utf8")
+            current_class = class_name
 
             nodes.append(Node(class_name, "CLASS", "KOTLIN"))
             symbol_table.add_class(filename, class_name)
@@ -40,31 +28,29 @@ def parse_kotlin(tree, source_code, filename, symbol_table):
 
             for member in body.children:
                 if member.type == "function_declaration":
-                    fn_node = member.child_by_field_name("name")
-                    if not fn_node:
+                    name_node = member.child_by_field_name("name")
+                    if not name_node:
                         continue
 
-                    fn = src[
-                        fn_node.start_byte:fn_node.end_byte
-                    ].decode("utf8")
+                    method = src[name_node.start_byte:name_node.end_byte].decode("utf8")
+                    method_id = f"{class_name}.{method}"
 
-                    fn_id = f"{class_name}.{fn}"
+                    nodes.append(Node(method_id, "METHOD", "KOTLIN"))
+                    relations.append(Relation(class_name, method_id, "HAS_METHOD"))
 
-                    nodes.append(Node(fn_id, "METHOD", "KOTLIN"))
-                    relations.append(
-                        Relation(class_name, fn_id, "HAS_METHOD")
-                    )
+                    symbol_table.add_function(filename, method)
 
-                    symbol_table.add_method(class_name, fn)
+                    for n in traverse(member):
+                        if n.type == "call_expression":
+                            fn = n.child_by_field_name("callee")
+                            if fn:
+                                raw = src[fn.start_byte:fn.end_byte].decode("utf8")
+                                called = normalize_call_name(raw)
 
-                    # method calls
-                    for node in traverse(member):
-                        if node.type == "call_expression":
-                            callee = node.child_by_field_name("callee")
-                            if callee:
-                                raw_called = src[node.start_byte:node.end_byte].decode("utf8")
-                                called = normalize_call_name(raw_called)
-                                resolved = symbol_table.resolve(filename, called)
-                                relations.append(Relation(method_id, called, "CALLS"))
+                                resolved = symbol_table.resolve(
+                                    None, filename, called
+                                )
+
+                                relations.append(Relation(method_id, resolved, "CALLS"))
 
     return nodes, relations

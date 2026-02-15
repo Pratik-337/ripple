@@ -2,19 +2,20 @@ from core.node import Node
 from core.relation import Relation
 from core.traversal import traverse
 from core.util import normalize_call_name
+
 def parse_cpp(tree, source_code, filename, symbol_table):
     root = tree.root_node
     nodes, relations = [], []
     src = source_code.encode("utf8")
 
-    # -------- IMPORTS (#include) --------
+    # -------- IMPORTS --------
     for child in root.children:
         if child.type == "preproc_include":
             include_text = src[child.start_byte:child.end_byte].decode("utf8")
             nodes.append(Node(include_text, "IMPORT", "CPP"))
             symbol_table.add_import(filename, include_text)
 
-    # -------- FUNCTIONS (free functions like main) --------
+    # -------- FREE FUNCTIONS --------
     for child in root.children:
         if child.type == "function_definition":
             declarator = child.child_by_field_name("declarator")
@@ -35,8 +36,16 @@ def parse_cpp(tree, source_code, filename, symbol_table):
                 if node.type == "call_expression":
                     fn = node.child_by_field_name("function")
                     if fn:
-                        called = src[fn.start_byte:fn.end_byte].decode("utf8")
-                        relations.append(Relation(fn_id, called, "CALLS"))
+                        raw = src[fn.start_byte:fn.end_byte].decode("utf8")
+                        called = normalize_call_name(raw)
+
+                        resolved = symbol_table.resolve(
+                            current_class=None,
+                            current_file=filename,
+                            call_name=called
+                        )
+
+                        relations.append(Relation(fn_id, resolved, "CALLS"))
 
     # -------- CLASSES + METHODS --------
     for child in root.children:
@@ -78,6 +87,13 @@ def parse_cpp(tree, source_code, filename, symbol_table):
                             if fn:
                                 raw = src[fn.start_byte:fn.end_byte].decode("utf8")
                                 called = normalize_call_name(raw)
-                                relations.append(Relation(fn_id, called, "CALLS"))
+
+                                resolved = symbol_table.resolve(
+                                    current_class=None,
+                                    current_file=filename,
+                                    call_name=called
+                                )
+
+                                relations.append(Relation(method_id, resolved, "CALLS"))
 
     return nodes, relations
