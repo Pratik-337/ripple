@@ -53,7 +53,7 @@ def analyze_change(project_root: Path, change_id: str, impact_start_node: str):
     for unit in parsed_units:
         nodes, relations = PARSER_MAP[unit['lang']](unit['tree'], unit['code'], unit['stem'], symbol_table)
         for n in nodes: builder.add_node(n)
-        for r in relations: builder.add_relation(r)
+        for r in relations: print(f"DEBUG ADD RELATION: {r.source} -> {r.target} ({r.type})"); builder.add_relation(r)
 
     graph = builder.build()
     for r in build_cross_language_equivalence(list(graph.nodes.values())): graph.add_relation(r)
@@ -64,7 +64,11 @@ def analyze_change(project_root: Path, change_id: str, impact_start_node: str):
 
     resolved_start = impact_start_node
     for (nid, ntype, nlang) in graph.nodes.keys():
-        if nid.endswith(impact_start_node): resolved_start = nid; break
+        # Smart match: check if ID ends with search string, ignoring signatures
+        clean_nid = nid.split('(')[0]
+        if clean_nid.endswith(impact_start_node) or nid == impact_start_node:
+            resolved_start = nid
+            break
 
     impacts = propagate_impact(graph, resolved_start)
     
@@ -77,7 +81,7 @@ def analyze_change(project_root: Path, change_id: str, impact_start_node: str):
 
         affected_components.append({
             'component_id': str(uuid.uuid4()),
-            'component_name': node_id.split('::')[1] if '::' in node_id else 'Core',
+            'component_name': node_id.split('::')[2] if len(node_id.split('::')) > 2 else (node_id.split('::')[1] if '::' in node_id else 'Core'),
             'contributor': {'id': 'unknown', 'name': 'Emma Carstairs', 'avatar_url': 'https://avatars.githubusercontent.com/u/1'},
             'confidence': 'high' if info['depth'] <= 1 else 'medium',
             'detection_method': 'parser',
@@ -86,11 +90,13 @@ def analyze_change(project_root: Path, change_id: str, impact_start_node: str):
                 'affected_lines': [{
                     'start_line': getattr(node, 'start_line', 1),
                     'end_line': getattr(node, 'end_line', 1),
-                    'reason': f'Impacted at depth {info["depth"]}',
+                    'reason': f'Impacted via {info['via']} at depth {info['depth']}',
                     'confidence': 1.0
                 }]
             }]
         })
+
+    affected_components.sort(key=lambda x: x["component_name"] + x["affected_files"][0]["filename"])
 
     return {
         'event': 'impact:parser_complete',
@@ -107,6 +113,6 @@ def analyze_change(project_root: Path, change_id: str, impact_start_node: str):
         }
     }
 
-def run_pipeline(project_root: Path, send_to_backend=False):
-    result = analyze_change(project_root, 'compat-id', 'UserController.getUsers')
+def run_pipeline(project_root: Path, impact_start_node="getUsers", send_to_backend=False):
+    result = analyze_change(project_root, 'compat-id', impact_start_node)
     return result, result['data']['affected_components']

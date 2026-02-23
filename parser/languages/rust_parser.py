@@ -49,7 +49,12 @@ def parse_rust(tree, source_code, filename, symbol_table):
             nm = node.child_by_field_name('name')
             if nm:
                 f_nm = text(nm)
-                fn_id = f'{curr_struct}.{f_nm}' if curr_struct else f'rust::{crate}::{module}::_::{f_nm}'
+                
+                # Rust signatures are complex, using () as placeholder for now
+                # In a full implementation, we would parse parameters and return types
+                sig = '()'
+                fn_id = f'{curr_struct}::{f_nm}{sig}' if curr_struct else f'rust::{crate}::{module}::_::{f_nm}{sig}'
+                
                 nodes.append(Node(fn_id, 'METHOD' if curr_struct else 'FUNCTION', 'RUST', filename, node.start_point[0]+1, node.end_point[0]+1))
                 symbol_table.add_definition('RUST', fn_id, 'METHOD' if curr_struct else 'FUNCTION', filename, curr_struct, node.start_point[0]+1, node.end_point[0]+1)
                 if curr_struct: relations.append(Relation(curr_struct, fn_id, 'CONTAINS'))

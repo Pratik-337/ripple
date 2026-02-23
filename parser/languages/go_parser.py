@@ -26,7 +26,7 @@ def parse_go(tree, source_code, filename, symbol_table):
                     if r.type == 'type_identifier': rec_name = text(r); break
 
             owner = f'go::{pkg}::{rec_name}' if rec_name else None
-            fn_id = f'{owner}.{f_nm}' if owner else f'go::{pkg}::{f_nm}'
+            fn_id = f'{owner}::{f_nm}()' if owner else f'go::{pkg}::{f_nm}()'
             kind = 'METHOD' if rec_name else 'FUNCTION'
 
             nodes.append(Node(fn_id, kind, 'GO', filename, child.start_point[0]+1, child.end_point[0]+1))

@@ -15,7 +15,7 @@ class SymbolTable:
         self.index[lang][type].add(fqn)
         if parent: 
             self.hierarchy[lang][fqn].add(parent)
-            meth_name = fqn.split('.')[-1] if '.' in fqn else fqn.split('::')[-1]
+            meth_name = fqn.split('::')[-1]
             self.methods[lang][parent].add(meth_name)
 
     def add_field_to_class(self, lang, class_fqn, field_name, field_type):
@@ -25,41 +25,47 @@ class SymbolTable:
     def add_import(self, file, alias, target): self.imports.setdefault(file, {})[alias] = target
 
     def resolve(self, lang, current_file, current_owner, call_name, local_scope=None):
-        # 1. Prepare parts
         obj, meth = None, call_name
-        if '.' in call_name:
-            obj, meth = call_name.split('.', 1)
+        if '::' in call_name:
+            parts = call_name.rsplit('::', 1)
+            obj, meth = parts[0], parts[1]
+        elif '.' in call_name:
+            parts = call_name.split('.', 1)
+            obj, meth = parts[0], parts[1]
 
-        # 2. Local variable / Field resolution
         obj_type = None
         if local_scope and obj in local_scope: obj_type = local_scope[obj]
         elif current_owner and (lang, current_owner) in self.definitions:
             obj_type = self.definitions[(lang, current_owner)]['fields'].get(obj)
         
         if obj_type:
-            # Resolve type via imports (e.g. UserService -> com.demo.UserService)
             full_type = self.imports.get(current_file, {}).get(obj_type, obj_type)
-            return self._build_fqn(lang, full_type, meth), 'CALLS_DYNAMIC'
+            target = self._build_fqn(lang, full_type, meth)
+            if (lang == 'JAVA' or lang == 'KOTLIN') and not target.endswith('()'):
+                target += '()'
+            return target, 'CALLS_DYNAMIC'
 
-        # 3. Direct sibling / Inheritance resolution
         if current_owner:
             if meth in self.methods[lang][current_owner]:
-                return f'{current_owner}.{meth}', 'CALLS'
+                res = f'{current_owner}::{meth}'
+                if (lang == 'JAVA' or lang == 'KOTLIN') and not res.endswith('()'): res += '()'
+                return res, 'CALLS'
             for parent in self.hierarchy[lang].get(current_owner, []):
                 if meth in self.methods[lang][parent]:
-                    return f'{parent}.{meth}', 'CALLS_DYNAMIC'
+                    res = f'{parent}::{meth}'
+                    if (lang == 'JAVA' or lang == 'KOTLIN') and not res.endswith('()'): res += '()'
+                    return res, 'CALLS_DYNAMIC'
 
-        # 4. OMNISCIENT GLOBAL SEARCH (The Fix)
-        # If we have a method name (with or without a receiver), search the whole project
+        search_meth = meth.split('(')[0] if '(' in meth else meth
         for type_key in ['METHOD', 'FUNCTION']:
             for fqn in self.index[lang].get(type_key, []):
-                # Match if FQN ends with .meth or ::meth
-                if fqn.endswith(f'.{meth}') or fqn.endswith(f'::{meth}') or fqn == meth:
+                clean_fqn = fqn.split('(')[0]
+                if clean_fqn.endswith(f'::{search_meth}') or clean_fqn == search_meth:
                     return fqn, 'CALLS_DYNAMIC' if type_key == 'METHOD' else 'CALLS'
 
         return call_name, 'CALLS'
 
     def _build_fqn(self, lang, owner_type, meth_name):
         prefix = 'java::default' if lang == 'JAVA' else lang.lower()
-        if '::' in owner_type: return f'{owner_type}.{meth_name}'
-        return f'{prefix}::{owner_type}.{meth_name}'
+        if '::' in owner_type: return f'{owner_type}::{meth_name}'
+        return f'{prefix}::{owner_type}::{meth_name}'

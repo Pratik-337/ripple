@@ -27,7 +27,7 @@ def parse_python(tree, source_code, filename, symbol_table):
             for m in body.children if body else []:
                 if m.type == 'function_definition':
                     mnm = text(m.child_by_field_name('name'))
-                    m_id = f'{cls_id}.{mnm}'
+                    m_id = f'{cls_id}::{mnm}()'
                     nodes.append(Node(m_id, 'METHOD', 'PYTHON', filename, m.start_point[0]+1, m.end_point[0]+1))
                     relations.append(Relation(cls_id, m_id, 'CONTAINS'))
                     symbol_table.add_definition('PYTHON', m_id, 'METHOD', filename, cls_id, m.start_point[0]+1, m.end_point[0]+1)

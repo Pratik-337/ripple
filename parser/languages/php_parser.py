@@ -25,7 +25,7 @@ def parse_php(tree, source_code, filename, symbol_table):
             nm = node.child_by_field_name('name')
             if nm:
                 r_nm = text(nm)
-                fn_id = f'{curr_owner}.{r_nm}' if curr_owner else f'php::{filename}::{r_nm}'
+                fn_id = f'{curr_owner}::{r_nm}()' if curr_owner else f'php::{filename}::{r_nm}()'
                 nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', 'PHP', filename, node.start_point[0]+1, node.end_point[0]+1))
                 symbol_table.add_definition('PHP', fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1)
                 if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))

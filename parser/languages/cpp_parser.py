@@ -20,7 +20,7 @@ def parse_cpp_cpp(tree, source_code, filename, symbol_table, lang):
         elif node.type in {'class_specifier', 'struct_specifier'}:
             nm = node.child_by_field_name('name')
             if nm:
-                fqn = f'{lang.lower()}::{filename}::{text(nm)}'
+                fqn = f'cpp::{filename}::{text(nm)}'
                 nodes.append(Node(fqn, 'CLASS', lang, filename, node.start_point[0]+1, node.end_point[0]+1))
                 symbol_table.add_definition(lang, fqn, 'CLASS', filename, None, node.start_point[0]+1, node.end_point[0]+1)
                 
@@ -29,7 +29,7 @@ def parse_cpp_cpp(tree, source_code, filename, symbol_table, lang):
                 if base:
                     for b in traverse(base):
                         if b.type == 'type_identifier':
-                            target = f'{lang.lower()}::{filename}::{text(b)}'
+                            target = f'cpp::{filename}::{text(b)}'
                             relations.append(Relation(fqn, target, 'IMPLEMENTS'))
                             symbol_table.hierarchy[lang][fqn].add(target)
                 scope_stack.append({'id': fqn, 'end': node.end_byte})
@@ -41,7 +41,7 @@ def parse_cpp_cpp(tree, source_code, filename, symbol_table, lang):
                 while actual.child_by_field_name('declarator'): actual = actual.child_by_field_name('declarator')
                 nm = actual.child_by_field_name('declarator') or actual
                 r_nm = text(nm)
-                fn_id = f'{curr_owner}.{r_nm}' if curr_owner else f'{lang.lower()}::{filename}::{r_nm}'
+                fn_id = f'{curr_owner}::{r_nm}()' if curr_owner else f'cpp::{filename}::{r_nm}()'
                 nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', lang, filename, node.start_point[0]+1, node.end_point[0]+1))
                 symbol_table.add_definition(lang, fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1)
                 if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))

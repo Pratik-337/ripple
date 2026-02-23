@@ -18,7 +18,7 @@ def parse_js_ts(tree, source_code, filename, symbol_table, lang):
             if not nm: continue
             r_nm = text(nm)
             kind = 'INTERFACE' if 'interface' in node.type else 'CLASS'
-            fqn = f'{curr_owner}.{r_nm}' if curr_owner else f'{lang.lower()}::{filename}::{r_nm}'
+            fqn = f'typescript::{r_nm}' if curr_owner else f'typescript::{filename}::{r_nm}'
             nodes.append(Node(fqn, kind, lang, filename, node.start_point[0]+1, node.end_point[0]+1))
             symbol_table.add_definition(lang, fqn, kind, filename, None, node.start_point[0]+1, node.end_point[0]+1)
             scope_stack.append({'id': fqn, 'end': node.end_byte})
@@ -27,7 +27,7 @@ def parse_js_ts(tree, source_code, filename, symbol_table, lang):
             nm = node.child_by_field_name('name')
             if not nm: continue
             r_nm = text(nm)
-            fn_id = f'{curr_owner}.{r_nm}' if curr_owner else f'{lang.lower()}::{filename}::{r_nm}'
+            fn_id = f'{curr_owner}::{r_nm}()' if curr_owner else f'typescript::{filename}::{r_nm}()'
             nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', lang, filename, node.start_point[0]+1, node.end_point[0]+1))
             symbol_table.add_definition(lang, fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1)
             if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))
