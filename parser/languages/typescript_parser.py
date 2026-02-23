@@ -1,94 +1,46 @@
-from core.node import Node
-from core.relation import Relation
-from core.traversal import traverse
-from core.util import normalize_call_name
+from ..core.node import Node
+from ..core.relation import Relation
+from ..core.traversal import traverse
+from ..core.util import normalize_call_name
+
+def parse_js_ts(tree, source_code, filename, symbol_table, lang):
+    root = tree.root_node
+    nodes, relations, src = [], [], source_code.encode('utf8')
+    def text(n): return src[n.start_byte:n.end_byte].decode('utf8')
+
+    scope_stack = []
+    for node in traverse(root):
+        while scope_stack and node.start_byte > scope_stack[-1]['end']: scope_stack.pop()
+        curr_owner = scope_stack[-1]['id'] if scope_stack else None
+
+        if node.type in {'class_declaration', 'interface_declaration', 'class'}:
+            nm = node.child_by_field_name('name')
+            if not nm: continue
+            r_nm = text(nm)
+            kind = 'INTERFACE' if 'interface' in node.type else 'CLASS'
+            fqn = f'{curr_owner}.{r_nm}' if curr_owner else f'{lang.lower()}::{filename}::{r_nm}'
+            nodes.append(Node(fqn, kind, lang, filename, node.start_point[0]+1, node.end_point[0]+1))
+            symbol_table.add_definition(lang, fqn, kind, filename, None, node.start_point[0]+1, node.end_point[0]+1)
+            scope_stack.append({'id': fqn, 'end': node.end_byte})
+
+        elif node.type in {'method_definition', 'function_declaration'}:
+            nm = node.child_by_field_name('name')
+            if not nm: continue
+            r_nm = text(nm)
+            fn_id = f'{curr_owner}.{r_nm}' if curr_owner else f'{lang.lower()}::{filename}::{r_nm}'
+            nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', lang, filename, node.start_point[0]+1, node.end_point[0]+1))
+            symbol_table.add_definition(lang, fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1)
+            if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))
+
+            body = node.child_by_field_name('body')
+            if body:
+                for sub in traverse(body):
+                    if sub.type == 'call_expression':
+                        fexpr = sub.child_by_field_name('function')
+                        if fexpr:
+                            res, mode = symbol_table.resolve(lang, filename, curr_owner, normalize_call_name(text(fexpr)))
+                            relations.append(Relation(fn_id, res, mode))
+    return nodes, relations
 
 def parse_typescript(tree, source_code, filename, symbol_table):
-    root = tree.root_node
-    nodes = []
-    relations = []
-
-    src = source_code.encode("utf8")
-
-    # ---------- IMPORTS ----------
-    for child in root.children:
-        if child.type == "import_statement":
-            for sub in child.children:
-                if sub.type == "string":
-                    module = src[sub.start_byte:sub.end_byte].decode("utf8").strip('"\'')
-                    nodes.append(Node(module, "IMPORT", "TYPESCRIPT"))
-                    symbol_table.add_import(filename, module)
-                    break
-
-    # ---------- FUNCTIONS ----------
-    for child in root.children:
-        if child.type == "function_declaration":
-            name_node = child.child_by_field_name("name")
-            if not name_node:
-                continue
-
-            fn = src[name_node.start_byte:name_node.end_byte].decode("utf8")
-            fn_id = f"{filename}.{fn}"
-
-            nodes.append(Node(fn_id, "FUNCTION", "TYPESCRIPT"))
-            symbol_table.add_function(filename, fn)
-
-            for n in traverse(child):
-                if n.type == "call_expression":
-                    call = n.child_by_field_name("function")
-                    if call:
-                        raw = src[call.start_byte:call.end_byte].decode("utf8")
-                        called = normalize_call_name(raw)
-
-                        resolved = symbol_table.resolve(
-                            current_class=None,
-                            current_file=filename,
-                            call_name=called
-                        )
-
-                        relations.append(Relation(fn_id, resolved, "CALLS"))
-
-    # ---------- CLASSES ----------
-    for child in root.children:
-        if child.type == "class_declaration":
-            name_node = child.child_by_field_name("name")
-            if not name_node:
-                continue
-
-            class_name = src[name_node.start_byte:name_node.end_byte].decode("utf8")
-            nodes.append(Node(class_name, "CLASS", "TYPESCRIPT"))
-            symbol_table.add_class(filename, class_name)
-
-            body = child.child_by_field_name("body")
-            if not body:
-                continue
-
-            for member in body.children:
-                if member.type == "method_definition":
-                    method_node = member.child_by_field_name("name")
-                    if not method_node:
-                        continue
-
-                    method = src[method_node.start_byte:method_node.end_byte].decode("utf8")
-                    method_id = f"{class_name}.{method}"
-
-                    nodes.append(Node(method_id, "METHOD", "TYPESCRIPT"))
-                    relations.append(Relation(class_name, method_id, "HAS_METHOD"))
-                    symbol_table.add_function(filename, method)
-
-                    for n in traverse(member):
-                        if n.type == "call_expression":
-                            call = n.child_by_field_name("function")
-                            if call:
-                                raw = src[call.start_byte:call.end_byte].decode("utf8")
-                                called = normalize_call_name(raw)
-
-                                resolved = symbol_table.resolve(
-                                    current_class=None,
-                                    current_file=filename,
-                                    call_name=called
-                                )
-
-                                relations.append(Relation(method_id, resolved, "CALLS"))
-
-    return nodes, relations
+    return parse_js_ts(tree, source_code, filename, symbol_table, 'TYPESCRIPT')

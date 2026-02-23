@@ -1,7 +1,7 @@
 package com.ripple.demo.service;
 
 import com.ripple.demo.dto.ParserOutputDTO;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,7 @@ public class GraphIngestService {
         this.neo4jClient = neo4jClient;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void saveGraph(ParserOutputDTO graphData) {
         // 1. Convert NodeDTOs to Maps
         List<Map<String, Object>> nodeMaps = graphData.getNodes().stream()
@@ -67,7 +67,7 @@ public class GraphIngestService {
                 .run();
     }
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public ParserOutputDTO fetchGraph() {
 
         String nodeQuery = """

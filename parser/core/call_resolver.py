@@ -1,30 +1,65 @@
+from parser.core.relation import Relation
+
+
 def resolve_calls(graph, symbol_table):
     """
-    Resolves ambiguous CALLS like:
-    helper -> test.helper or Class.helper
+    Resolve CALLS edges to fully-qualified method names.
+    Ensures all relations are normalized to Relation objects.
     """
+
+    normalized_relations = set()
+
+    # --- Step 0: normalize all relations ---
+    for rel in graph.relations:
+        if isinstance(rel, Relation):
+            normalized_relations.add(rel)
+        else:
+            src, tgt, typ = rel
+            normalized_relations.add(Relation(src, tgt, typ))
+
     resolved_relations = set()
 
-    for (src, tgt, typ) in graph.relations:
-        if typ != "CALLS":
-            resolved_relations.add((src, tgt, typ))
+    # --- Step 1: resolve CALLS ---
+    for rel in normalized_relations:
+        if rel.type != "CALLS":
+            resolved_relations.add(rel)
             continue
+
+        src = rel.source
+        tgt = rel.target
 
         # Already resolved
         if "." in tgt:
-            resolved_relations.add((src, tgt, typ))
+            resolved_relations.add(rel)
             continue
 
-        caller_file = src.split(".")[0]
-        caller_class = src.split(".")[0] if "." in src else None
+        # Invalid source
+        if "." not in src:
+            resolved_relations.add(rel)
+            continue
 
-        resolved = symbol_table.resolve(
-            current_class=caller_class,
-            current_file=caller_file,
-            call_name=tgt
+        caller_class = src.split(".", 1)[0]
+
+        caller_owner = src.split(".", 1)[0]
+
+        # CASE 1 — True class method
+        if caller_owner in symbol_table.methods:
+            resolved_target = symbol_table.resolve_method_call(
+                current_class=caller_owner,
+                call_name=tgt
+            )
+
+        # CASE 2 — Top-level file function
+        else:
+            resolved_target = symbol_table.resolve(
+                current_class=None,
+                current_file=caller_owner,
+                call_name=tgt
+            )
+
+        resolved_relations.add(
+            Relation(src, resolved_target, "CALLS")
         )
-
-        resolved_relations.add((src, resolved, typ))
 
     graph.relations = resolved_relations
     return graph

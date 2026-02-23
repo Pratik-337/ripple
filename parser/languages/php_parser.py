@@ -1,87 +1,41 @@
-from core.node import Node
-from core.relation import Relation
-from core.traversal import traverse
-from core.util import normalize_call_name   
+from ..core.node import Node
+from ..core.relation import Relation
+from ..core.traversal import traverse
+from ..core.util import normalize_call_name
 
 def parse_php(tree, source_code, filename, symbol_table):
     root = tree.root_node
-    nodes, relations = [], []
-    src = source_code.encode("utf8")
+    nodes, relations, src = [], [], source_code.encode('utf8')
+    def text(n): return src[n.start_byte:n.end_byte].decode('utf8')
 
-    # ===============================
-    # IMPORTS (require / include)
-    # ===============================
+    scope_stack = []
     for node in traverse(root):
-        if node.type in ("require_expression", "include_expression"):
-            arg = node.child_by_field_name("argument")
-            if arg:
-                module = src[arg.start_byte:arg.end_byte].decode("utf8").strip('"\'')
-                nodes.append(Node(module, "IMPORT", "PHP"))
-                symbol_table.add_import(filename, module)
+        while scope_stack and node.start_byte > scope_stack[-1]['end']: scope_stack.pop()
+        curr_owner = scope_stack[-1]['id'] if scope_stack else None
 
-    # ===============================
-    # FUNCTIONS
-    # ===============================
-    for child in root.children:
-        if child.type == "function_definition":
-            name_node = child.child_by_field_name("name")
-            if not name_node:
-                continue
+        if node.type == 'class_declaration':
+            nm = node.child_by_field_name('name')
+            if nm:
+                fqn = f'php::{filename}::{text(nm)}'
+                nodes.append(Node(fqn, 'CLASS', 'PHP', filename, node.start_point[0]+1, node.end_point[0]+1))
+                symbol_table.add_definition('PHP', fqn, 'CLASS', filename, None, node.start_point[0]+1, node.end_point[0]+1)
+                scope_stack.append({'id': fqn, 'end': node.end_byte})
 
-            fn = src[name_node.start_byte:name_node.end_byte].decode("utf8")
-            fn_id = f"{filename}.{fn}"
+        elif node.type in {'function_definition', 'method_declaration'}:
+            nm = node.child_by_field_name('name')
+            if nm:
+                r_nm = text(nm)
+                fn_id = f'{curr_owner}.{r_nm}' if curr_owner else f'php::{filename}::{r_nm}'
+                nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', 'PHP', filename, node.start_point[0]+1, node.end_point[0]+1))
+                symbol_table.add_definition('PHP', fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1)
+                if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))
 
-            nodes.append(Node(fn_id, "FUNCTION", "PHP"))
-            symbol_table.add_function(filename, fn)
-
-            for n in traverse(child):
-                if n.type == "function_call_expression":
-                    call_node = n.child_by_field_name("function")
-                    if call_node:
-                        raw = src[call_node.start_byte:call_node.end_byte].decode("utf8")
-                        called = normalize_call_name(raw)
-
-                        resolved = symbol_table.resolve(
-                            None, filename, called
-                        )
-
-                        relations.append(Relation(fn_id, resolved, "CALLS"))
-
-    # ===============================
-    # CLASSES + METHODS
-    # ===============================
-    for child in root.children:
-        if child.type == "class_declaration":
-            name_node = child.child_by_field_name("name")
-            if not name_node:
-                continue
-
-            class_name = src[name_node.start_byte:name_node.end_byte].decode("utf8")
-            nodes.append(Node(class_name, "CLASS", "PHP"))
-            symbol_table.add_class(filename, class_name)
-
-            body = child.child_by_field_name("body")
-            if not body:
-                continue
-
-            for member in body.children:
-                if member.type == "method_declaration":
-                    mname = member.child_by_field_name("name")
-                    if not mname:
-                        continue
-
-                    method = src[mname.start_byte:mname.end_byte].decode("utf8")
-                    method_id = f"{class_name}.{method}"
-
-                    nodes.append(Node(method_id, "METHOD", "PHP"))
-                    relations.append(Relation(class_name, method_id, "HAS_METHOD"))
-                    symbol_table.add_method(class_name, method)
-
-                    for n in traverse(member):
-                        if n.type == "function_call_expression":
-                            call = n.child_by_field_name("name")
-                            if call:
-                                raw_called = src[call.start_byte:call.end_byte].decode("utf8")
-                                called = normalize_call_name(raw_called)
-                                relations.append(Relation(method_id, called, "CALLS"))
+                body = node.child_by_field_name('body')
+                if body:
+                    for sub in traverse(body):
+                        if sub.type in {'function_call_expression', 'member_call_expression'}:
+                            fn_p = sub.child_by_field_name('function') or sub.child_by_field_name('name')
+                            if fn_p:
+                                res, mode = symbol_table.resolve('PHP', filename, curr_owner, normalize_call_name(text(fn_p)))
+                                relations.append(Relation(fn_id, res, mode))
     return nodes, relations

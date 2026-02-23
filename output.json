@@ -1,0 +1,829 @@
+{
+  "nodes": [
+    {
+      "id": "c::my_c_app::main",
+      "type": "FUNCTION",
+      "language": "C",
+      "file": "my_c_app",
+      "start_line": 4,
+      "end_line": 7
+    },
+    {
+      "id": "c::my_c_lib::do_c_work",
+      "type": "FUNCTION",
+      "language": "C",
+      "file": "my_c_lib",
+      "start_line": 5,
+      "end_line": 7
+    },
+    {
+      "id": "cpp::test::Calculator",
+      "type": "CLASS",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 3,
+      "end_line": 9
+    },
+    {
+      "id": "cpp::test::Calculator.add",
+      "type": "METHOD",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 5,
+      "end_line": 8
+    },
+    {
+      "id": "cpp::test::main",
+      "type": "FUNCTION",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 16
+    },
+    {
+      "id": "go::main::main",
+      "type": "FUNCTION",
+      "language": "GO",
+      "file": "test",
+      "start_line": 7,
+      "end_line": 10
+    },
+    {
+      "id": "iostream",
+      "type": "IMPORT",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 1,
+      "end_line": 2
+    },
+    {
+      "id": "java::default::UserController",
+      "type": "CLASS",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 1,
+      "end_line": 16
+    },
+    {
+      "id": "java::default::UserController.getUsers",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 7,
+      "end_line": 10
+    },
+    {
+      "id": "java::default::UserController.handleLocalService",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 12,
+      "end_line": 15
+    },
+    {
+      "id": "java::default::UserController.handleUserRequest",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 6,
+      "end_line": 9
+    },
+    {
+      "id": "java::default::UserService",
+      "type": "CLASS",
+      "language": "JAVA",
+      "file": "UserService",
+      "start_line": 1,
+      "end_line": 8
+    },
+    {
+      "id": "java::default::UserService.getUsers",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserService",
+      "start_line": 3,
+      "end_line": 7
+    },
+    {
+      "id": "javascript::app::loadUsers",
+      "type": "FUNCTION",
+      "language": "JAVASCRIPT",
+      "file": "app",
+      "start_line": 1,
+      "end_line": 5
+    },
+    {
+      "id": "javascript::test::MyJsApp",
+      "type": "CLASS",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 20,
+      "end_line": 31
+    },
+    {
+      "id": "javascript::test::MyJsApp.constructor",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 21,
+      "end_line": 23
+    },
+    {
+      "id": "javascript::test::MyJsApp.runApp",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 25,
+      "end_line": 30
+    },
+    {
+      "id": "javascript::test::MyJsService",
+      "type": "CLASS",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 1,
+      "end_line": 9
+    },
+    {
+      "id": "javascript::test::MyJsService.constructor",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 2,
+      "end_line": 4
+    },
+    {
+      "id": "javascript::test::MyJsService.getData",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 6,
+      "end_line": 8
+    },
+    {
+      "id": "javascript::test::runJsExample",
+      "type": "FUNCTION",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 17
+    },
+    {
+      "id": "kotlin::main::App",
+      "type": "CLASS",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 7,
+      "end_line": 9
+    },
+    {
+      "id": "kotlin::main::App.run",
+      "type": "METHOD",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 8,
+      "end_line": 8
+    },
+    {
+      "id": "kotlin::main::Service",
+      "type": "INTERFACE",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 3,
+      "end_line": 5
+    },
+    {
+      "id": "kotlin::main::Service.run",
+      "type": "METHOD",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 4,
+      "end_line": 4
+    },
+    {
+      "id": "kotlin::main::_::main",
+      "type": "FUNCTION",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 14
+    },
+    {
+      "id": "my_c_lib.h",
+      "type": "IMPORT",
+      "language": "C",
+      "file": "my_c_app",
+      "start_line": 2,
+      "end_line": 3
+    },
+    {
+      "id": "php::my_php_app::mainApp",
+      "type": "FUNCTION",
+      "language": "PHP",
+      "file": "my_php_app",
+      "start_line": 4,
+      "end_line": 8
+    },
+    {
+      "id": "php::my_php_lib::MyPhpService",
+      "type": "CLASS",
+      "language": "PHP",
+      "file": "my_php_lib",
+      "start_line": 3,
+      "end_line": 7
+    },
+    {
+      "id": "php::my_php_lib::MyPhpService.doWork",
+      "type": "METHOD",
+      "language": "PHP",
+      "file": "my_php_lib",
+      "start_line": 4,
+      "end_line": 6
+    },
+    {
+      "id": "php::my_php_lib::globalPhpFunction",
+      "type": "FUNCTION",
+      "language": "PHP",
+      "file": "my_php_lib",
+      "start_line": 9,
+      "end_line": 11
+    },
+    {
+      "id": "python::main::main",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "main",
+      "start_line": 3,
+      "end_line": 4
+    },
+    {
+      "id": "python::my_app::MyApp",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 4,
+      "end_line": 15
+    },
+    {
+      "id": "python::my_app::MyApp.__init__",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 5,
+      "end_line": 7
+    },
+    {
+      "id": "python::my_app::MyApp.run_field",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 9,
+      "end_line": 10
+    },
+    {
+      "id": "python::my_app::MyApp.run_local",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 12,
+      "end_line": 15
+    },
+    {
+      "id": "python::my_app::main",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 17,
+      "end_line": 20
+    },
+    {
+      "id": "python::my_services::MyService",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "my_services",
+      "start_line": 1,
+      "end_line": 3
+    },
+    {
+      "id": "python::my_services::MyService.do_work",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_services",
+      "start_line": 2,
+      "end_line": 3
+    },
+    {
+      "id": "python::test::A",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 14,
+      "end_line": 19
+    },
+    {
+      "id": "python::test::A.bar",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 18,
+      "end_line": 19
+    },
+    {
+      "id": "python::test::A.foo",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 15,
+      "end_line": 16
+    },
+    {
+      "id": "python::test::helper",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 5,
+      "end_line": 6
+    },
+    {
+      "id": "python::test::main",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 8,
+      "end_line": 10
+    },
+    {
+      "id": "python::utils::helper",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "utils",
+      "start_line": 1,
+      "end_line": 2
+    },
+    {
+      "id": "rust::crate::main::A",
+      "type": "STRUCT",
+      "language": "RUST",
+      "file": "test2",
+      "start_line": 1,
+      "end_line": 1
+    },
+    {
+      "id": "rust::crate::main::A.foo",
+      "type": "METHOD",
+      "language": "RUST",
+      "file": "test2",
+      "start_line": 5,
+      "end_line": 5
+    },
+    {
+      "id": "rust::crate::main::App",
+      "type": "STRUCT",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 5,
+      "end_line": 5
+    },
+    {
+      "id": "rust::crate::main::App.run",
+      "type": "METHOD",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 8,
+      "end_line": 8
+    },
+    {
+      "id": "rust::crate::main::Service",
+      "type": "TRAIT",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 1,
+      "end_line": 3
+    },
+    {
+      "id": "rust::crate::main::_::helper",
+      "type": "FUNCTION",
+      "language": "RUST",
+      "file": "test",
+      "start_line": 4,
+      "end_line": 6
+    },
+    {
+      "id": "rust::crate::main::_::main",
+      "type": "FUNCTION",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 11,
+      "end_line": 14
+    },
+    {
+      "id": "rust::crate::main::_::read_file",
+      "type": "FUNCTION",
+      "language": "RUST",
+      "file": "test",
+      "start_line": 13,
+      "end_line": 15
+    },
+    {
+      "id": "stdio.h",
+      "type": "IMPORT",
+      "language": "C",
+      "file": "my_c_lib",
+      "start_line": 2,
+      "end_line": 3
+    },
+    {
+      "id": "typescript::test::MyTsApp",
+      "type": "CLASS",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 21,
+      "end_line": 31
+    },
+    {
+      "id": "typescript::test::MyTsApp.constructor",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 24,
+      "end_line": 26
+    },
+    {
+      "id": "typescript::test::MyTsApp.runApp",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 28,
+      "end_line": 30
+    },
+    {
+      "id": "typescript::test::MyTsService",
+      "type": "CLASS",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 1,
+      "end_line": 11
+    },
+    {
+      "id": "typescript::test::MyTsService.constructor",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 4,
+      "end_line": 6
+    },
+    {
+      "id": "typescript::test::MyTsService.getData",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 8,
+      "end_line": 10
+    },
+    {
+      "id": "typescript::test::runTsExample",
+      "type": "FUNCTION",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 13,
+      "end_line": 19
+    }
+  ],
+  "relations": [
+    {
+      "from": "c::my_c_app::main",
+      "to": "c::my_c_lib::do_c_work",
+      "type": "CALLS"
+    },
+    {
+      "from": "c::my_c_lib::do_c_work",
+      "to": "printf",
+      "type": "CALLS"
+    },
+    {
+      "from": "cpp::test::Calculator",
+      "to": "cpp::test::Calculator.add",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "cpp::test::main",
+      "to": "cpp::test::Calculator.add",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "go::main::main",
+      "to": "Start",
+      "type": "CALLS"
+    },
+    {
+      "from": "java::default::UserController",
+      "to": "java::default::UserController.getUsers",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "java::default::UserController",
+      "to": "java::default::UserController.handleLocalService",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "java::default::UserController",
+      "to": "java::default::UserController.handleUserRequest",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "java::default::UserController.handleLocalService",
+      "to": "java::default::UserController.getUsers",
+      "type": "CALLS"
+    },
+    {
+      "from": "java::default::UserController.handleUserRequest",
+      "to": "java::default::UserController.getUsers",
+      "type": "CALLS"
+    },
+    {
+      "from": "java::default::UserService",
+      "to": "java::default::UserService.getUsers",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "javascript::app::loadUsers",
+      "to": "fetch",
+      "type": "CALLS"
+    },
+    {
+      "from": "javascript::app::loadUsers",
+      "to": "log",
+      "type": "CALLS"
+    },
+    {
+      "from": "javascript::app::loadUsers",
+      "to": "text",
+      "type": "CALLS"
+    },
+    {
+      "from": "javascript::test::MyJsApp",
+      "to": "javascript::test::MyJsApp.constructor",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "javascript::test::MyJsApp",
+      "to": "javascript::test::MyJsApp.runApp",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "javascript::test::MyJsApp.constructor",
+      "to": "typescript::test::MyTsApp.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::MyJsApp.constructor",
+      "to": "typescript::test::MyTsService.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::MyJsApp.runApp",
+      "to": "javascript::test::MyJsService.getData",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "javascript::test::MyJsApp.runApp",
+      "to": "typescript::test::MyTsApp.runApp",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::MyJsService",
+      "to": "javascript::test::MyJsService.constructor",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "javascript::test::MyJsService",
+      "to": "javascript::test::MyJsService.getData",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "javascript::test::MyJsService.constructor",
+      "to": "typescript::test::MyTsApp.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::MyJsService.constructor",
+      "to": "typescript::test::MyTsService.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::MyJsService.getData",
+      "to": "typescript::test::MyTsService.getData",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "javascript::test::runJsExample",
+      "to": "javascript::test::MyJsService.getData",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "kotlin::main::App",
+      "to": "kotlin::main::App.run",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "kotlin::main::App",
+      "to": "kotlin::main::Service",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "from": "kotlin::main::Service",
+      "to": "kotlin::main::Service.run",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "php::my_php_app::mainApp",
+      "to": "php::my_php_lib::MyPhpService.doWork",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "php::my_php_app::mainApp",
+      "to": "php::my_php_lib::globalPhpFunction",
+      "type": "CALLS"
+    },
+    {
+      "from": "php::my_php_lib::MyPhpService",
+      "to": "php::my_php_lib::MyPhpService.doWork",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::main::main",
+      "to": "python::utils::helper",
+      "type": "CALLS"
+    },
+    {
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp.__init__",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp.run_field",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp.run_local",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::my_app::MyApp.__init__",
+      "to": "MyService",
+      "type": "CALLS"
+    },
+    {
+      "from": "python::my_app::MyApp.run_field",
+      "to": "python::my_services::MyService.do_work",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "python::my_app::MyApp.run_local",
+      "to": "MyService",
+      "type": "CALLS"
+    },
+    {
+      "from": "python::my_app::MyApp.run_local",
+      "to": "python::my_services::MyService.do_work",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "python::my_app::main",
+      "to": "MyApp",
+      "type": "CALLS"
+    },
+    {
+      "from": "python::my_app::main",
+      "to": "python::my_app::MyApp.run_field",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "python::my_app::main",
+      "to": "python::my_app::MyApp.run_local",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "python::my_services::MyService",
+      "to": "python::my_services::MyService.do_work",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::test::A",
+      "to": "python::test::A.bar",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::test::A",
+      "to": "python::test::A.foo",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "python::test::A.foo",
+      "to": "python::test::A.bar",
+      "type": "CALLS"
+    },
+    {
+      "from": "python::test::main",
+      "to": "python::utils::helper",
+      "type": "CALLS"
+    },
+    {
+      "from": "rust::crate::main::A",
+      "to": "rust::crate::main::A.foo",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "rust::crate::main::App",
+      "to": "rust::crate::main::App.run",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "rust::crate::main::App",
+      "to": "rust::crate::main::Service",
+      "type": "IMPLEMENTS"
+    },
+    {
+      "from": "rust::crate::main::_::main",
+      "to": "rust::crate::main::App.run",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "rust::crate::main::_::main",
+      "to": "rust::crate::main::_::helper",
+      "type": "CALLS"
+    },
+    {
+      "from": "rust::crate::main::_::main",
+      "to": "rust::crate::main::_::read_file",
+      "type": "CALLS"
+    },
+    {
+      "from": "rust::crate::main::_::read_file",
+      "to": "fs::read_to_string",
+      "type": "CALLS"
+    },
+    {
+      "from": "typescript::test::MyTsApp",
+      "to": "typescript::test::MyTsApp.constructor",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "typescript::test::MyTsApp",
+      "to": "typescript::test::MyTsApp.runApp",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "typescript::test::MyTsApp.constructor",
+      "to": "javascript::test::MyJsApp.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::MyTsApp.constructor",
+      "to": "javascript::test::MyJsService.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::MyTsApp.runApp",
+      "to": "javascript::test::MyJsApp.runApp",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::MyTsApp.runApp",
+      "to": "typescript::test::MyTsService.getData",
+      "type": "CALLS_DYNAMIC"
+    },
+    {
+      "from": "typescript::test::MyTsService",
+      "to": "typescript::test::MyTsService.constructor",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "typescript::test::MyTsService",
+      "to": "typescript::test::MyTsService.getData",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "typescript::test::MyTsService.constructor",
+      "to": "javascript::test::MyJsApp.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::MyTsService.constructor",
+      "to": "javascript::test::MyJsService.constructor",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::MyTsService.getData",
+      "to": "javascript::test::MyJsService.getData",
+      "type": "CROSS_LANG_EQUIVALENT"
+    },
+    {
+      "from": "typescript::test::runTsExample",
+      "to": "typescript::test::MyTsService.getData",
+      "type": "CALLS_DYNAMIC"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # core/cross_language.py
 
-from core.relation import Relation
-from core.util import normalize_call_name
+from parser.core.relation import Relation
+from parser.core.util import normalize_call_name
 
 
 def normalize_node_id(node_id: str) -> str:

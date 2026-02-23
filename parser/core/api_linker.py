@@ -1,4 +1,4 @@
-from core.relation import Relation
+from parser.core.relation import Relation
 
 SPRING_ANNOTATIONS = {
     "@GetMapping",

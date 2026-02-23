@@ -1,70 +1,65 @@
-from collections import deque, defaultdict
+from collections import deque
 
-# Relations that propagate impact
-IMPACT_EDGES = {
-    "CALLS",
-    "CALLS_API",
-    "HAS_METHOD",
-    "IMPORTS",
-    "CROSS_LANG_EQUIVALENT",
-    "REVERSE_CALLS_API",   # 🔥 ADD THIS
-}
-
-
-# Relations that should propagate impact backwards
-REVERSE_EDGES = {
-    "CALLS",
-    "CALLS_API",
-}
+# ------------------------------------------------------------------------------
+# Graph Representation
+# ------------------------------------------------------------------------------
 
 def build_adjacency(graph):
     """
-    Build adjacency list with forward + selective reverse edges
+    Builds an adjacency list representation of the graph from its relations.
+    Each node maps to a list of (neighbor, relation_type) tuples.
     """
-    adj = defaultdict(list)
+    adjacency = {}
+    for rel_tuple in graph.relations: # Iterate over the (source, target, type) tuples
+        caller = rel_tuple[0]  # Access source by index
+        callee = rel_tuple[1]  # Access target by index
+        rel_type = rel_tuple[2] # Access type by index
 
-    for src, dst, rel_type in graph.relations:
-        if rel_type not in IMPACT_EDGES:
-            continue
+        if caller not in adjacency:
+            adjacency[caller] = []
+        if callee not in adjacency: # Ensure all nodes are in adjacency map
+            adjacency[callee] = []
 
-        # forward edge
-        adj[src].append((dst, rel_type))
+        # Representing edge as (callee, type) to distinguish relation types
+        adjacency[caller].append((callee, rel_type))
+    return adjacency
 
-        # backward edge (for callers / API consumers)
-        if rel_type in REVERSE_EDGES:
-            adj[dst].append((src, f"REVERSE_{rel_type}"))
+# ------------------------------------------------------------------------------
+# Impact Propagation
+# ------------------------------------------------------------------------------
 
-    return adj
-
-
-def propagate_impact(graph, start_node_id, max_depth=10):
+def propagate_impact(graph, start_node_id, max_depth=5):
     """
-    BFS-based impact propagation
+    Propagates impact from a start node through the graph using BFS.
+    Returns a dictionary of impacted nodes with their depth and the relation type that led to them.
     """
     adjacency = build_adjacency(graph)
+    impacted_nodes = {} # node_id -> {depth, via_relation_type}
+    queue = deque([(start_node_id, 0, "START")]) # (node_id, depth, via_relation_type)
 
-    impacted = {}
-    queue = deque()
-
-    impacted[start_node_id] = {
-        "depth": 0,
-        "via": None
-    }
-    queue.append(start_node_id)
+    if start_node_id not in adjacency:
+        # If start_node_id is not in adjacency, it might be an isolated node
+        # or a node that only has incoming relations.
+        # We should still include it as impacted.
+        impacted_nodes[start_node_id] = {"depth": 0, "via": "START"}
+        # If it has no outgoing edges, BFS won't proceed, which is correct.
+        # If it has incoming edges, we'd need a reverse adjacency list for reverse impact.
+        # For now, we proceed with forward impact.
 
     while queue:
-        current = queue.popleft()
-        current_depth = impacted[current]["depth"]
+        current_node_id, depth, via_relation = queue.popleft()
 
-        if current_depth >= max_depth:
+        if current_node_id in impacted_nodes and impacted_nodes[current_node_id]["depth"] <= depth:
+            continue # Already visited at a shallower or equal depth
+
+        impacted_nodes[current_node_id] = {"depth": depth, "via": via_relation}
+
+        if depth >= max_depth:
             continue
 
-        for neighbor, rel_type in adjacency.get(current, []):
-            if neighbor not in impacted:
-                impacted[neighbor] = {
-                    "depth": current_depth + 1,
-                    "via": rel_type
-                }
-                queue.append(neighbor)
+        # Propagate to neighbors
+        for neighbor_id, rel_type in adjacency.get(current_node_id, []):
+            if neighbor_id not in impacted_nodes or impacted_nodes[neighbor_id]["depth"] > depth + 1:
+                queue.append((neighbor_id, depth + 1, rel_type))
 
-    return impacted
+    return impacted_nodes
