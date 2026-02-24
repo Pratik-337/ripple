@@ -13,6 +13,9 @@ def parse_go(tree, source_code, filename, symbol_table):
         if c.type == 'package_clause':
             nm = c.child_by_field_name('name')
             if nm: pkg = text(nm)
+    # If this is package main, prefer a file-based module label to reduce collisions
+    if pkg == 'main':
+        pkg = filename
 
     for child in root.children:
         if child.type == 'function_declaration':
@@ -25,9 +28,12 @@ def parse_go(tree, source_code, filename, symbol_table):
                 for r in traverse(rec_node): 
                     if r.type == 'type_identifier': rec_name = text(r); break
 
-            owner = f'go::{pkg}::{rec_name}' if rec_name else None
+            # FQN normalization:
+            # - receiver methods: go::<pkg>::<Receiver>::<fn>()
+            # - top-level funcs: go::<pkg>::_::<fn>()
+            owner = f'go::{pkg}::{rec_name}' if rec_name else f'go::{pkg}::_'
             sig = '()' # Go signatures could be parsed from parameters
-            fn_id = f'{owner}::{f_nm}{sig}' if owner else f'go::{pkg}::{f_nm}{sig}'
+            fn_id = f'{owner}::{f_nm}{sig}'
             kind = 'METHOD' if rec_name else 'FUNCTION'
 
             nodes.append(Node(fn_id, kind, 'GO', filename, child.start_point[0]+1, child.end_point[0]+1))

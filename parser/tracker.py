@@ -7,6 +7,7 @@ from parser.pipeline import analyze_changes
 from parser.core.ast_loader import parse_code
 from parser.core.symbol_table import SymbolTable
 from parser.core.diff_engine import find_changed_nodes
+import difflib
 from parser.language_registry import TREE_SITTER_LANG, PARSER_MAP
 from parser.languages.java_parser import parse_java
 from parser.languages.python_parser import parse_python
@@ -39,6 +40,66 @@ def get_current_st(path):
                 print(f"Error parsing {f}: {e}")
     return st
 
+def _extract_changed_lines(old_text, new_text):
+    """
+    Return only changed lines (new-side) for a function body.
+    For deletions, include the removed lines prefixed with '- '.
+    """
+    if old_text is None and new_text is None:
+        return None
+    if old_text is None:
+        return new_text.strip()
+    if new_text is None:
+        return "\n".join(f"- {l}" for l in old_text.splitlines() if l.strip())
+
+    old_lines = old_text.splitlines()
+    new_lines = new_text.splitlines()
+    out = []
+    sm = difflib.SequenceMatcher(a=old_lines, b=new_lines)
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag in ("replace", "insert"):
+            out.extend(new_lines[j1:j2])
+        elif tag == "delete":
+            out.extend(f"- {l}" for l in old_lines[i1:i2] if l.strip())
+    result = "\n".join(out).strip()
+    return result if result else None
+
+
+def _extract_changed_line_range(old_text, new_text, base_start_line):
+    """
+    Returns a (start_line, end_line) tuple for changed lines.
+    Prefers new-text line numbers when available.
+    """
+    if old_text is None and new_text is None:
+        return None
+
+    if new_text is None:
+        # Only deletions; use old text line numbers
+        lines = old_text.splitlines() if old_text else []
+        if not lines:
+            return None
+        return base_start_line, base_start_line + len(lines) - 1
+
+    old_lines = old_text.splitlines() if old_text else []
+    new_lines = new_text.splitlines()
+
+    changed_indices = []
+    sm = difflib.SequenceMatcher(a=old_lines, b=new_lines)
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag in ("replace", "insert"):
+            changed_indices.extend(range(j1, j2))
+        elif tag == "delete" and not changed_indices:
+            # deletions only; mark at deletion point
+            changed_indices.append(max(j1 - 1, 0))
+
+    if not changed_indices:
+        return None
+
+    start_idx = min(changed_indices)
+    end_idx = max(changed_indices)
+    return base_start_line + start_idx, base_start_line + end_idx
+
+
 def main():
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -69,13 +130,42 @@ def main():
         changes = find_changed_nodes(old_st, new_st)
         
         real_changes = {nid: ctype for nid, ctype in changes.items() if ctype not in ["NO_CHANGE", "METADATA_CHANGE"]}
-        
+
         if real_changes:
             print(f"Detected {len(real_changes)} changes. Calculating aggregated ripple effect...")
             for nid, ctype in real_changes.items():
                 print(f"  >>> {nid} ({ctype})")
-            
-            result = analyze_changes(Path("samples"), "manual-check", real_changes)
+
+            # Build changed snippets from old/new symbol tables
+            changed_snippets = {}
+            changed_line_ranges = {}
+            for (lang, fqn), old_def in old_st.definitions.items():
+                if fqn not in real_changes:
+                    continue
+                new_def = new_st.definitions.get((lang, fqn))
+                snippet = _extract_changed_lines(
+                    old_def.get("body_text") if old_def else None,
+                    new_def.get("body_text") if new_def else None
+                )
+                if snippet:
+                    changed_snippets[fqn] = snippet
+
+                base_start = (new_def or old_def).get("start", 1)
+                line_range = _extract_changed_line_range(
+                    old_def.get("body_text") if old_def else None,
+                    new_def.get("body_text") if new_def else None,
+                    base_start
+                )
+                if line_range:
+                    changed_line_ranges[fqn] = line_range
+
+            result = analyze_changes(
+                Path("samples"),
+                "manual-check",
+                real_changes,
+                changed_snippets=changed_snippets,
+                changed_line_ranges=changed_line_ranges
+            )
             
             with open("impact.json", "w") as f:
                 json.dump(result, f, indent=2)

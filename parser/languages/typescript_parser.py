@@ -7,6 +7,14 @@ def parse_typescript(tree, source_code, filename, symbol_table):
     root = tree.root_node
     nodes, relations, src = [], [], source_code.encode('utf8')
     def text(n): return src[n.start_byte:n.end_byte].decode('utf8', errors='ignore')
+    def extract_string_arg(call_node):
+        args = call_node.child_by_field_name('arguments')
+        if not args:
+            return None
+        for n in traverse(args):
+            if n.type == 'string':
+                return text(n).strip().strip('\'"')
+        return None
     
     scope_stack = []
 
@@ -37,6 +45,12 @@ def parse_typescript(tree, source_code, filename, symbol_table):
                         if sub.type == 'call_expression':
                             f_call = sub.child_by_field_name('function')
                             if f_call:
-                                res, mode = symbol_table.resolve('TYPESCRIPT', filename, curr_owner, normalize_call_name(text(f_call)))
+                                call_text = text(f_call).strip()
+                                # Explicit REST/API linking: fetch/axios -> USES_API_PATH
+                                if call_text.startswith('fetch') or call_text.startswith('axios.'):
+                                    path = extract_string_arg(sub)
+                                    if path:
+                                        relations.append(Relation(fn_id, path, 'USES_API_PATH'))
+                                res, mode = symbol_table.resolve('TYPESCRIPT', filename, curr_owner, normalize_call_name(call_text))
                                 relations.append(Relation(fn_id, res, mode))
     return nodes, relations

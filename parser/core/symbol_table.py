@@ -25,7 +25,8 @@ class SymbolTable:
             'start': start, 
             'end': end, 
             'fields': {}, 
-            'body_hash': body_hash
+            'body_hash': body_hash,
+            'body_text': body_text
         }
         self.index[lang][type].add(fqn)
         if parent: 

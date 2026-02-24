@@ -31,7 +31,7 @@ PARSER_MAP.update({
     'C': parse_c, 'CPP': parse_cpp, 'GO': parse_go, 'RUST': parse_rust, 'PHP': parse_php, 'KOTLIN': parse_kotlin,
 })
 
-def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict):
+def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict, changed_snippets: dict | None = None, changed_line_ranges: dict | None = None):
     """
     Analyzes multiple changed nodes and merges their impacts.
     changed_nodes: dict of {node_id: change_type}
@@ -40,6 +40,16 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict):
     symbol_table = SymbolTable()
     config = AnalysisConfig(allowed_languages=list(PARSER_MAP.keys()), max_files=5000)
     analysis = analyze_repository(project_root, config)
+
+    # Build (language, stem) -> relative path map for original_code extraction
+    file_index = {}
+    for d in analysis['details']:
+        try:
+            p = Path(d['path'])
+            rel = p.relative_to(project_root)
+        except Exception:
+            rel = Path(d['path'])
+        file_index[(d['language'], p.stem)] = str(rel)
 
     # --- PASS 1: DISCOVERY ---
     parsed_units = []
@@ -113,19 +123,47 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict):
         is_root = (node_id == info['root_change'] or node_id.split('(')[0] == info['root_change'])
         ctype = info['change_type'] if is_root else f"impacted_by_{info['change_type'].lower()}"
 
+        # Resolve file path for original_code extraction
+        rel_path = file_index.get((node.language, getattr(node, 'file', '')))
+        file_label = rel_path if rel_path else getattr(node, 'file', 'unknown')
+
+        original_code = None
+        if changed_snippets and node_id in changed_snippets:
+            original_code = changed_snippets[node_id]
+        if rel_path:
+            try:
+                src_path = project_root / rel_path
+                lines = src_path.read_text(encoding='utf8', errors='ignore').splitlines()
+                start = max(getattr(node, 'start_line', 1), 1)
+                end = max(getattr(node, 'end_line', start), start)
+                if original_code is None:
+                    original_code = "\n".join(lines[start-1:end])
+            except Exception:
+                if original_code is None:
+                    original_code = None
+
+        # If we have precise changed line range, use it
+        line_start = getattr(node, 'start_line', 1)
+        line_end = getattr(node, 'end_line', 1)
+        if changed_line_ranges and node_id in changed_line_ranges:
+            line_start, line_end = changed_line_ranges[node_id]
+
         affected_components.append({
             'component_id': str(uuid.uuid5(uuid.NAMESPACE_DNS, node_id)),
             'change_type': ctype,
             'component_name': node_id.split('::')[-1].split('(')[0] if '(' in node_id else node_id.split('::')[-1],
             'contributor': {'id': 'unknown', 'name': 'Emma Carstairs', 'avatar_url': 'https://avatars.githubusercontent.com/u/1'},
-            'confidence': 1.0 if info['depth'] == 0 else (0.95 if info['depth'] <= 1 else 0.8),
+            'confidence': 'high',
             'detection_method': 'parser',
             'affected_files': [{
-                'filename': getattr(node, 'file', 'unknown'),
+                'filename': file_label,
                 'affected_lines': [{
-                    'start_line': getattr(node, 'start_line', 1),
-                    'end_line': getattr(node, 'end_line', 1),
+                    'start_line': line_start,
+                    'end_line': line_end,
+                    'original_code': original_code,
                     'reason': f"Impacted via {info['via']} from {info['root_change']} at depth {info['depth']}",
+                    'annotation': f"{info['via']} impact from {info['root_change']}",
+                    'suggested_fix': None,
                     'confidence': 1.0
                 }]
             }]
@@ -134,11 +172,13 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict):
     affected_components.sort(key=lambda x: (x["component_name"], x["affected_files"][0]["filename"]))
 
     return {
+        'schema_version': '1.0',
         'event': 'impact:parser_complete',
         'change_request_id': change_id,
         'data': {
             'status': 'parser_complete',
             'affected_components': affected_components,
+            'unaffected_components': [],
             'summary': {
                 'total_affected': len(affected_components), 
                 'total_files_flagged': len(set(c['affected_files'][0]['filename'] for c in affected_components)),

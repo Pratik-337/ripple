@@ -5,74 +5,27 @@
     "status": "parser_complete",
     "affected_components": [
       {
-        "component_id": "3cfd72ed-1010-5cf8-a6bc-98834306d47b",
-        "change_type": "impacted_by_logic_change",
-        "component_name": "UserController",
-        "contributor": {
-          "id": "unknown",
-          "name": "Emma Carstairs",
-          "avatar_url": "https://avatars.githubusercontent.com/u/1"
-        },
-        "confidence": 0.8,
-        "detection_method": "parser",
-        "affected_files": [
-          {
-            "filename": "UserController",
-            "affected_lines": [
-              {
-                "start_line": 1,
-                "end_line": 16,
-                "reason": "Impacted via CONTAINS from java::default::UserService::getUsers() at depth 2",
-                "confidence": 1.0
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "component_id": "32f884da-beaf-56a3-a60c-0416d4007b7f",
-        "change_type": "impacted_by_logic_change",
-        "component_name": "UserService",
-        "contributor": {
-          "id": "unknown",
-          "name": "Emma Carstairs",
-          "avatar_url": "https://avatars.githubusercontent.com/u/1"
-        },
-        "confidence": 0.95,
-        "detection_method": "parser",
-        "affected_files": [
-          {
-            "filename": "UserService",
-            "affected_lines": [
-              {
-                "start_line": 1,
-                "end_line": 8,
-                "reason": "Impacted via CONTAINS from java::default::UserService::getUsers() at depth 1",
-                "confidence": 1.0
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "component_id": "6dc636cf-c233-5553-ba18-6a75d9ed9c2a",
+        "component_id": "f52a734b-9f1e-5a28-899d-1b2583076c0f",
         "change_type": "LOGIC_CHANGE",
-        "component_name": "getUsers",
+        "component_name": "main",
         "contributor": {
           "id": "unknown",
           "name": "Emma Carstairs",
           "avatar_url": "https://avatars.githubusercontent.com/u/1"
         },
-        "confidence": 1.0,
+        "confidence": "high",
         "detection_method": "parser",
         "affected_files": [
           {
-            "filename": "UserService",
+            "filename": "/mnt/d/Secufur/Ripple/ripple/samples/test.go",
             "affected_lines": [
               {
-                "start_line": 3,
-                "end_line": 7,
-                "reason": "Impacted via CHANGE from java::default::UserService::getUsers() at depth 0",
+                "start_line": 8,
+                "end_line": 8,
+                "original_code": "var t Server",
+                "reason": "Impacted via CHANGE from go::test::_::main() at depth 0",
+                "annotation": "CHANGE impact from go::test::_::main()",
+                "suggested_fix": null,
                 "confidence": 1.0
               }
             ]
@@ -80,49 +33,27 @@
         ]
       },
       {
-        "component_id": "643158d6-457c-5397-b4f5-17bfdc8f6eaa",
-        "change_type": "impacted_by_logic_change",
-        "component_name": "handleLocalService",
+        "component_id": "b0cfe6b8-9597-58c4-b1e0-909fc45717e2",
+        "change_type": "LOGIC_CHANGE",
+        "component_name": "mainApp",
         "contributor": {
           "id": "unknown",
           "name": "Emma Carstairs",
           "avatar_url": "https://avatars.githubusercontent.com/u/1"
         },
-        "confidence": 0.95,
+        "confidence": "high",
         "detection_method": "parser",
         "affected_files": [
           {
-            "filename": "UserController",
+            "filename": "/mnt/d/Secufur/Ripple/ripple/samples/my_php_app.php",
             "affected_lines": [
               {
-                "start_line": 12,
-                "end_line": 15,
-                "reason": "Impacted via CALLS_DYNAMIC from java::default::UserService::getUsers() at depth 1",
-                "confidence": 1.0
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "component_id": "0f470f44-a9cc-5da3-9cf6-ac5df88c074e",
-        "change_type": "impacted_by_logic_change",
-        "component_name": "handleUserRequest",
-        "contributor": {
-          "id": "unknown",
-          "name": "Emma Carstairs",
-          "avatar_url": "https://avatars.githubusercontent.com/u/1"
-        },
-        "confidence": 0.95,
-        "detection_method": "parser",
-        "affected_files": [
-          {
-            "filename": "UserController",
-            "affected_lines": [
-              {
-                "start_line": 6,
-                "end_line": 9,
-                "reason": "Impacted via CALLS_DYNAMIC from java::default::UserService::getUsers() at depth 1",
+                "start_line": 5,
+                "end_line": 5,
+                "original_code": "$service != new MyPhpService();",
+                "reason": "Impacted via CHANGE from php::my_php_app::mainApp() at depth 0",
+                "annotation": "CHANGE impact from php::my_php_app::mainApp()",
+                "suggested_fix": null,
                 "confidence": 1.0
               }
             ]
@@ -130,8 +61,9 @@
         ]
       }
     ],
+    "unaffected_components": [],
     "summary": {
-      "total_affected": 5,
+      "total_affected": 2,
       "total_files_flagged": 2,
       "detection_method": "parser",
       "llm_analysis_pending": true

@@ -66,6 +66,13 @@ def parse_java(tree, source_code, filename, symbol_table):
                     nodes.append(Node(m_id, 'METHOD', 'JAVA', filename, m.start_point[0]+1, m.end_point[0]+1))
                     relations.append(Relation(cls_id, m_id, 'CONTAINS'))
                     symbol_table.add_definition('JAVA', m_id, 'METHOD', filename, cls_id, m.start_point[0]+1, m.end_point[0]+1, body_text=text(m))
+
+                    # Capture method annotations for API linking (e.g., @GetMapping("/users"))
+                    for ann in traverse(m):
+                        if ann.type in {'marker_annotation', 'annotation'}:
+                            ann_text = text(ann).strip()
+                            if ann_text.startswith('@'):
+                                relations.append(Relation(ann_text, m_id, 'ANNOTATED_WITH'))
                     
                     # Local Variable tracking (very basic)
                     local_scope = {}

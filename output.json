@@ -41,7 +41,7 @@
       "end_line": 16
     },
     {
-      "id": "go::main::main()",
+      "id": "go::test::_::main()",
       "type": "FUNCTION",
       "language": "GO",
       "file": "test",
@@ -491,6 +491,11 @@
   ],
   "relations": [
     {
+      "from": "@GetMapping(\"/users\")",
+      "to": "java::default::UserController::getUsers()",
+      "type": "ANNOTATED_WITH"
+    },
+    {
       "from": "c::my_c_app::main()",
       "to": "c::my_c_lib::do_c_work()",
       "type": "CALLS"
@@ -511,7 +516,12 @@
       "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "go::main::main()",
+      "from": "go::test::_",
+      "to": "go::test::_::main()",
+      "type": "CONTAINS"
+    },
+    {
+      "from": "go::test::_::main()",
       "to": "Start",
       "type": "CALLS"
     },
@@ -547,8 +557,18 @@
     },
     {
       "from": "javascript::app::loadUsers()",
+      "to": "/users",
+      "type": "USES_API_PATH"
+    },
+    {
+      "from": "javascript::app::loadUsers()",
       "to": "fetch",
       "type": "CALLS"
+    },
+    {
+      "from": "javascript::app::loadUsers()",
+      "to": "java::default::UserController::getUsers()",
+      "type": "CALLS_API"
     },
     {
       "from": "javascript::app::loadUsers()",

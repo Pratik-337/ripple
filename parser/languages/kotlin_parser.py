@@ -11,8 +11,10 @@ def parse_kotlin(tree, source_code, filename, symbol_table):
     pkg = 'main'
     for c in root.children:
         if c.type == 'package_header':
-            n = c.child_by_field_name('identifier')
-            if n: pkg = text(n).strip()
+            # Use the full package header text to preserve dotted paths
+            raw = text(c).strip()
+            if raw.startswith('package'):
+                pkg = raw.replace('package', '', 1).strip()
 
     scope_stack = []
     for node in traverse(root):
@@ -43,6 +45,7 @@ def parse_kotlin(tree, source_code, filename, symbol_table):
             nm = node.child_by_field_name('name')
             if not nm: continue
             r_nm = text(nm).strip()
+            receiver = node.child_by_field_name('receiver_type')
             
             params = node.child_by_field_name('parameters')
             sig = '()'
@@ -54,10 +57,22 @@ def parse_kotlin(tree, source_code, filename, symbol_table):
                         if t: types.append(text(t))
                 sig = '(' + ','.join(types) + ')'
 
-            fn_id = f'{curr_owner}::{r_nm}{sig}' if curr_owner else f'kotlin::{pkg}::_::{r_nm}{sig}'
-            nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', 'KOTLIN', filename, node.start_point[0]+1, node.end_point[0]+1))
-            symbol_table.add_definition('KOTLIN', fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
-            if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))
+            # Extension functions are scoped to a receiver type, not a class owner
+            if receiver:
+                recv_name = text(receiver).split("<")[0].split("(")[0].strip()
+                ext_owner = f'kotlin::{pkg}::ext::{recv_name}'
+                # Ensure a stable extension owner node exists
+                nodes.append(Node(ext_owner, 'EXTENSION', 'KOTLIN', filename, node.start_point[0]+1, node.end_point[0]+1))
+                symbol_table.add_definition('KOTLIN', ext_owner, 'EXTENSION', filename, None, node.start_point[0]+1, node.end_point[0]+1, body_text=None)
+                fn_id = f'{ext_owner}::{r_nm}{sig}'
+                nodes.append(Node(fn_id, 'FUNCTION', 'KOTLIN', filename, node.start_point[0]+1, node.end_point[0]+1))
+                symbol_table.add_definition('KOTLIN', fn_id, 'FUNCTION', filename, ext_owner, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
+                relations.append(Relation(ext_owner, fn_id, 'CONTAINS'))
+            else:
+                fn_id = f'{curr_owner}::{r_nm}{sig}' if curr_owner else f'kotlin::{pkg}::_::{r_nm}{sig}'
+                nodes.append(Node(fn_id, 'METHOD' if curr_owner else 'FUNCTION', 'KOTLIN', filename, node.start_point[0]+1, node.end_point[0]+1))
+                symbol_table.add_definition('KOTLIN', fn_id, 'METHOD' if curr_owner else 'FUNCTION', filename, curr_owner, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
+                if curr_owner: relations.append(Relation(curr_owner, fn_id, 'CONTAINS'))
             
             body = node.child_by_field_name('body')
             if body:
