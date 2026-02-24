@@ -1,0 +1,140 @@
+{
+  "event": "impact:parser_complete",
+  "change_request_id": "manual-check",
+  "data": {
+    "status": "parser_complete",
+    "affected_components": [
+      {
+        "component_id": "3cfd72ed-1010-5cf8-a6bc-98834306d47b",
+        "change_type": "impacted_by_logic_change",
+        "component_name": "UserController",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": 0.8,
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "UserController",
+            "affected_lines": [
+              {
+                "start_line": 1,
+                "end_line": 16,
+                "reason": "Impacted via CONTAINS from java::default::UserService::getUsers() at depth 2",
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "component_id": "32f884da-beaf-56a3-a60c-0416d4007b7f",
+        "change_type": "impacted_by_logic_change",
+        "component_name": "UserService",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": 0.95,
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "UserService",
+            "affected_lines": [
+              {
+                "start_line": 1,
+                "end_line": 8,
+                "reason": "Impacted via CONTAINS from java::default::UserService::getUsers() at depth 1",
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "component_id": "6dc636cf-c233-5553-ba18-6a75d9ed9c2a",
+        "change_type": "LOGIC_CHANGE",
+        "component_name": "getUsers",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": 1.0,
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "UserService",
+            "affected_lines": [
+              {
+                "start_line": 3,
+                "end_line": 7,
+                "reason": "Impacted via CHANGE from java::default::UserService::getUsers() at depth 0",
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "component_id": "643158d6-457c-5397-b4f5-17bfdc8f6eaa",
+        "change_type": "impacted_by_logic_change",
+        "component_name": "handleLocalService",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": 0.95,
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "UserController",
+            "affected_lines": [
+              {
+                "start_line": 12,
+                "end_line": 15,
+                "reason": "Impacted via CALLS_DYNAMIC from java::default::UserService::getUsers() at depth 1",
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "component_id": "0f470f44-a9cc-5da3-9cf6-ac5df88c074e",
+        "change_type": "impacted_by_logic_change",
+        "component_name": "handleUserRequest",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": 0.95,
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "UserController",
+            "affected_lines": [
+              {
+                "start_line": 6,
+                "end_line": 9,
+                "reason": "Impacted via CALLS_DYNAMIC from java::default::UserService::getUsers() at depth 1",
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "total_affected": 5,
+      "total_files_flagged": 2,
+      "detection_method": "parser",
+      "llm_analysis_pending": true
+    }
+  }
+}

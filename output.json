@@ -186,7 +186,7 @@
     },
     {
       "id": "kotlin::main::Service",
-      "type": "INTERFACE",
+      "type": "CLASS",
       "language": "KOTLIN",
       "file": "test",
       "start_line": 3,
@@ -249,7 +249,7 @@
       "end_line": 11
     },
     {
-      "id": "python::main::main",
+      "id": "python::main::main()",
       "type": "FUNCTION",
       "language": "PYTHON",
       "file": "main",
@@ -289,7 +289,7 @@
       "end_line": 15
     },
     {
-      "id": "python::my_app::main",
+      "id": "python::my_app::main()",
       "type": "FUNCTION",
       "language": "PYTHON",
       "file": "my_app",
@@ -337,7 +337,7 @@
       "end_line": 16
     },
     {
-      "id": "python::test::helper",
+      "id": "python::test::helper()",
       "type": "FUNCTION",
       "language": "PYTHON",
       "file": "test",
@@ -345,7 +345,7 @@
       "end_line": 6
     },
     {
-      "id": "python::test::main",
+      "id": "python::test::main()",
       "type": "FUNCTION",
       "language": "PYTHON",
       "file": "test",
@@ -353,7 +353,7 @@
       "end_line": 10
     },
     {
-      "id": "python::utils::helper",
+      "id": "python::utils::helper()",
       "type": "FUNCTION",
       "language": "PYTHON",
       "file": "utils",
@@ -596,19 +596,9 @@
       "type": "CONTAINS"
     },
     {
-      "from": "kotlin::main::App",
-      "to": "kotlin::main::Service",
-      "type": "IMPLEMENTS"
-    },
-    {
       "from": "kotlin::main::Service",
       "to": "kotlin::main::Service::run()",
       "type": "CONTAINS"
-    },
-    {
-      "from": "php::my_php_app::mainApp()",
-      "to": "php::my_php_lib::MyPhpService::doWork()",
-      "type": "CALLS_DYNAMIC"
     },
     {
       "from": "php::my_php_app::mainApp()",
@@ -621,8 +611,8 @@
       "type": "CONTAINS"
     },
     {
-      "from": "python::main::main",
-      "to": "python::test::helper",
+      "from": "python::main::main()",
+      "to": "python::utils::helper()",
       "type": "CALLS"
     },
     {
@@ -661,17 +651,17 @@
       "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::my_app::main",
+      "from": "python::my_app::main()",
       "to": "MyApp",
       "type": "CALLS"
     },
     {
-      "from": "python::my_app::main",
+      "from": "python::my_app::main()",
       "to": "python::my_app::MyApp::run_field()",
       "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::my_app::main",
+      "from": "python::my_app::main()",
       "to": "python::my_app::MyApp::run_local()",
       "type": "CALLS_DYNAMIC"
     },
@@ -696,8 +686,8 @@
       "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::test::main",
-      "to": "python::test::helper",
+      "from": "python::test::main()",
+      "to": "python::utils::helper()",
       "type": "CALLS"
     },
     {

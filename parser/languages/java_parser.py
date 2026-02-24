@@ -22,7 +22,7 @@ def parse_java(tree, source_code, filename, symbol_table):
             kind = 'INTERFACE' if c.type == 'interface_declaration' else 'CLASS'
             cls_id = f'java::{pkg}::{r_nm}'
             nodes.append(Node(cls_id, kind, 'JAVA', filename, c.start_point[0]+1, c.end_point[0]+1))
-            symbol_table.add_definition('JAVA', cls_id, kind, filename, None, c.start_point[0]+1, c.end_point[0]+1)
+            symbol_table.add_definition('JAVA', cls_id, kind, filename, None, c.start_point[0]+1, c.end_point[0]+1, body_text=text(c))
 
             # Inheritance
             for gc in c.children:
@@ -65,13 +65,12 @@ def parse_java(tree, source_code, filename, symbol_table):
                     m_id = f'{cls_id}::{text(mnm)}{sig}'
                     nodes.append(Node(m_id, 'METHOD', 'JAVA', filename, m.start_point[0]+1, m.end_point[0]+1))
                     relations.append(Relation(cls_id, m_id, 'CONTAINS'))
-                    symbol_table.add_definition('JAVA', m_id, 'METHOD', filename, cls_id, m.start_point[0]+1, m.end_point[0]+1)
+                    symbol_table.add_definition('JAVA', m_id, 'METHOD', filename, cls_id, m.start_point[0]+1, m.end_point[0]+1, body_text=text(m))
                     
                     # Local Variable tracking (very basic)
                     local_scope = {}
                     for n in traverse(m):
                         if n.type == 'variable_declarator':
-                            # Look up for type in parent variable_declaration
                             p = n.parent
                             while p and p.type != 'variable_declaration' and p.type != 'local_variable_declaration':
                                 p = p.parent

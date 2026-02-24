@@ -1,16 +1,31 @@
 from collections import defaultdict
+import hashlib
+
+def _dict_set_factory():
+    return defaultdict(set)
 
 class SymbolTable:
     def __init__(self):
         self.definitions = {}
         self.imports = {}
-        self.index = defaultdict(lambda: defaultdict(set))
-        self.hierarchy = defaultdict(lambda: defaultdict(set))
-        self.methods = defaultdict(lambda: defaultdict(set))
+        self.index = defaultdict(_dict_set_factory)
+        self.hierarchy = defaultdict(_dict_set_factory)
+        self.methods = defaultdict(_dict_set_factory)
 
-    def add_definition(self, lang, fqn, type, file, parent=None, start=1, end=1):
+    def add_definition(self, lang, fqn, type, file, parent=None, start=1, end=1, body_text=None):
+        body_hash = None
+        if body_text:
+            body_hash = hashlib.md5(body_text.strip().encode('utf8')).hexdigest()
+
         self.definitions[(lang, fqn)] = {
-            'type': type, 'file': file, 'parent': parent, 'start': start, 'end': end, 'fields': {}
+            'id': fqn,
+            'type': type, 
+            'file': file, 
+            'parent': parent, 
+            'start': start, 
+            'end': end, 
+            'fields': {}, 
+            'body_hash': body_hash
         }
         self.index[lang][type].add(fqn)
         if parent: 

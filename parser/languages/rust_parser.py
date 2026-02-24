@@ -22,14 +22,14 @@ def parse_rust(tree, source_code, filename, symbol_table):
             if nm:
                 s_id = f'rust::{crate}::{module}::{text(nm)}'
                 nodes.append(Node(s_id, 'STRUCT', 'RUST', filename, node.start_point[0]+1, node.end_point[0]+1))
-                symbol_table.add_definition('RUST', s_id, 'STRUCT', filename, None, node.start_point[0]+1, node.end_point[0]+1)
+                symbol_table.add_definition('RUST', s_id, 'STRUCT', filename, None, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
 
         elif node.type == 'trait_item':
             nm = node.child_by_field_name('name')
             if nm:
                 t_id = f'rust::{crate}::{module}::{text(nm)}'
                 nodes.append(Node(t_id, 'TRAIT', 'RUST', filename, node.start_point[0]+1, node.end_point[0]+1))
-                symbol_table.add_definition('RUST', t_id, 'TRAIT', filename, None, node.start_point[0]+1, node.end_point[0]+1)
+                symbol_table.add_definition('RUST', t_id, 'TRAIT', filename, None, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
 
         elif node.type == 'impl_item':
             t_node = node.child_by_field_name('type')
@@ -49,14 +49,11 @@ def parse_rust(tree, source_code, filename, symbol_table):
             nm = node.child_by_field_name('name')
             if nm:
                 f_nm = text(nm)
-                
-                # Rust signatures are complex, using () as placeholder for now
-                # In a full implementation, we would parse parameters and return types
-                sig = '()'
+                sig = '()' # Simplified for now
                 fn_id = f'{curr_struct}::{f_nm}{sig}' if curr_struct else f'rust::{crate}::{module}::_::{f_nm}{sig}'
                 
                 nodes.append(Node(fn_id, 'METHOD' if curr_struct else 'FUNCTION', 'RUST', filename, node.start_point[0]+1, node.end_point[0]+1))
-                symbol_table.add_definition('RUST', fn_id, 'METHOD' if curr_struct else 'FUNCTION', filename, curr_struct, node.start_point[0]+1, node.end_point[0]+1)
+                symbol_table.add_definition('RUST', fn_id, 'METHOD' if curr_struct else 'FUNCTION', filename, curr_struct, node.start_point[0]+1, node.end_point[0]+1, body_text=text(node))
                 if curr_struct: relations.append(Relation(curr_struct, fn_id, 'CONTAINS'))
                 current_function = fn_id
 
