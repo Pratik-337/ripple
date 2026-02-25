@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+  --color-background: #000000;
+  --color-foreground: #ffffff;
+  --color-card: #09090b;
+  --color-card-foreground: #ffffff;
+  --color-popover: #09090b;
+  --color-popover-foreground: #ffffff;
+  --color-primary: #ffffff;
+  --color-primary-foreground: #09090b;
+  --color-secondary: #27272a;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #27272a;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #27272a;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #7f1d1d;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #27272a;
+  --color-input: #27272a;
+  --color-ring: #d4d4d8;
+}
+
+/* ── App shell font scale (all pages except landing/auth) ─────────────────── */
+.ripple-app {
+  font-size: 115%;
+}
+
+/* ── ReactFlow dark-theme overrides ──────────────────────────────────────── */
+.react-flow__background {
+  background-color: #08080a !important;
+}
+
+.react-flow__controls {
+  background: #09090b !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  transition: background 0.15s, color 0.15s;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__minimap {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+}
+
+.react-flow__edge-path {
+  filter: none;
+}
+
+/* Monaco editor container — remove default white backgrounds */
+.monaco-editor .margin,
+.monaco-editor,
+.monaco-editor-background,
+.monaco-diff-editor .original,
+.monaco-diff-editor .modified {
+  background-color: #1e1e1e !important;
+}
