@@ -1,3 +1,4 @@
+from parser.core.traversal import get_neighborhood_nodes
 from parser.rag.validator import validate_impact
 from parser.rag.code_extractor import extract_code
 from parser.rag.validator import validate_impact
@@ -39,7 +40,7 @@ PARSER_MAP.update({
     'C': parse_c, 'CPP': parse_cpp, 'GO': parse_go, 'RUST': parse_rust, 'PHP': parse_php, 'KOTLIN': parse_kotlin,
 })
 
-def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
+def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict, max_hops=2,
                     changed_snippets: dict | None = None,
                     changed_line_ranges: dict | None = None):
 
@@ -164,6 +165,12 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
         index = build_index(project_root, graph)
 
         for start_node in filtered_changes.keys():
+            # PHASE 3: GRAPH-CONSTRAINED RAG
+            # Phase 3 Hardening: Configurable hops & direction
+            neighborhood = get_neighborhood_nodes(graph, start_node, max_hops=max_hops, direction="undirected", include_peers=True, max_size=50)
+            print(f"\n🌐 Graph Neighborhood for {start_node}: {len(neighborhood)} nodes (vs {len(graph.nodes)} total)")
+            
+            
 
             changed_node = actual_nodes.get(start_node)
             if not changed_node:
@@ -174,7 +181,13 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
                 continue
 
             semantic_hits = retrieve_similar(index, changed_code, k=5)
+            llm_calls_made = 0
+            MAX_LLM_PER_CHANGE = 10 # Hard Limit for Stability
+            
             for hit in semantic_hits:
+                if llm_calls_made >= MAX_LLM_PER_CHANGE:
+                    print(f"   - LLM Safety Cap reached ({MAX_LLM_PER_CHANGE})")
+                    break
 
                 similarity = hit["similarity"]
 
@@ -183,6 +196,11 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
 
                 meta = hit["meta"]
                 node_id = meta["id"]
+
+                # Pillar: Graph-Constraint Guard
+                if node_id not in neighborhood:
+                    # Skip semantic matches that have no structural path to the change
+                    continue
 
                 # Rule: Don't suggest a semantic hit if it was already found by the parser
                 if node_id in all_impacts:
@@ -195,6 +213,7 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
                 suggested_fix = None
                 
                 try:
+                    llm_calls_made += 1
                     validation = validate_impact(changed_code, meta["code"], change_type=change_type)
                     print(f"\n🔍 LLM Analyzing: {node_id}")
                     print(f"   - Decision: {validation.get("is_impacted", False)}")
@@ -393,13 +412,13 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict,
                         for c in affected_components
                     )
                 ),
-                'detection_method': 'hybrid' if any(c['detection_method'] == 'llm' for c in affected_components) else 'parser' if any(c['detection_method'] == 'llm' for c in affected_components) else 'parser',
+                'detection_method': 'hybrid' if any(c['detection_method'] == 'llm' for c in affected_components) else 'parser',
                 'llm_analysis_pending': False
             }
         }
     }
 
-def run_pipeline(project_root: Path, impact_start_node="getUsers", send_to_backend=False):
+def run_pipeline(project_root: Path, impact_start_node="getUsers", max_hops=2, send_to_backend=False):
     # Backward compatibility for old calls
-    result = analyze_changes(project_root, 'compat-id', {impact_start_node: 'LOGIC_CHANGE'})
+    result = analyze_changes(project_root, 'compat-id', {impact_start_node: 'LOGIC_CHANGE'}, max_hops=max_hops)
     return result, result['data']['affected_components']
