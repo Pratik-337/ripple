@@ -1,0 +1,72 @@
+# ── Python ─────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# ── Environment variables ──────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ── Node / Frontend ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Alembic / Database ─────────────────────────────────────────────────────────
+# Keep alembic/versions tracked — migrations must be in git
+# Don't ignore anything from alembic/
+
+# ── Docker volumes (local data dirs if mounted) ────────────────────────────────
+postgres_data/
+redis_data/
+minio_data/
+
+# ── IDEs & Editors ────────────────────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# ── OS generated files ────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── Test & Coverage ────────────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+*.pytest_tmp
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak

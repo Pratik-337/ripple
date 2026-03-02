@@ -1,0 +1,389 @@
+# Ripple Backend Implementation Plan
+
+## Overview
+
+Greenfield FastAPI backend. Vite frontend stays in `frontend3\` — no migration. Replace all mock data with real API calls. Full local dev on one machine via Docker + WSL2.
+
+**Stack:** FastAPI · PostgreSQL (asyncpg) · Redis · MinIO · Celery · Tree-sitter · Ollama (deepseek-coder:6.7b) · Alembic · Pydantic v2 · Zustand + React Query (frontend)
+
+---
+
+## Phase 0 — Infrastructure
+
+### [NEW] `d:\Ripple\docker-compose.yml`
+Spins up Postgres, Redis, MinIO. Persistent volumes. MinIO bucket created on first run via backend startup hook.
+
+### [NEW] `d:\Ripple\backend\requirements.txt`
+```
+fastapi[standard]
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+alembic
+pydantic-settings
+pydantic[email]
+python-jose[cryptography]
+passlib[bcrypt]
+httpx
+celery[redis]
+redis
+boto3
+tree-sitter
+tree-sitter-typescript
+tree-sitter-javascript
+ollama
+python-multipart
+```
+
+### [NEW] `backend/app/core/config.py`
+Pydantic [Settings](file:///d:/Ripple/frontend3/src/components/ProjectSettingsPage.tsx#661-788) class loading all `.env` vars.
+
+### [NEW] `backend/app/core/database.py`
+Async SQLAlchemy engine + `AsyncSession` dependency.
+
+### [NEW] `backend/app/core/redis.py`
+Redis connection pool for pub/sub and Celery broker.
+
+### [NEW] `backend/app/core/storage.py`
+boto3 S3 client pointed at MinIO. `ensure_bucket_exists()` called on startup. Presigned URL generation.
+
+---
+
+## Phase 1 — Database Schema
+
+All models in `backend/app/models/`. Single Alembic initial migration.
+
+### Tables
+
+| Table | Key Columns |
+|---|---|
+| `users` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `email`, `hashed_password`, `github_id`, `github_access_token`, `display_name`, `avatar_url`, `created_at` |
+| `refresh_tokens` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `user_id`, `token_hash`, `expires_at`, `revoked` |
+| `projects` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `owner_id`, `name`, `description`, `strictness_mode`, `status` (`draft`/`active`/`archived`), `created_at` |
+| `components` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `project_id`, `name`, `color`, `status` (`stable`/`flagged`/`pending`/`locked`), `created_at` |
+| `component_contributors` | `component_id`, `user_id`, `role` (`owner`/`contributor`/`read_only`) |
+| `component_dependencies` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `source_component_id`, `target_component_id`, `project_id` — populated by parser |
+| `project_files` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `project_id`, `component_id` (nullable), `path`, `language`, `size_bytes`, `s3_key`, `parsed_symbols` (JSONB) |
+| `file_drafts` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `file_id`, `author_id`, `s3_draft_key`, `updated_at` |
+| `project_snapshots` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `project_id`, `created_by`, `s3_manifest_key`, `created_at` |
+| `change_requests` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `project_id`, `author_id`, `title`, `status` (`open`/`acknowledged`/`merged`/`reverted`), `diff_s3_key`, `created_at` |
+| `change_impacts` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `change_id`, `component_id`, `contributor_id`, `status` (`pending`/`acknowledged`/`auto_confirmed`), `llm_annotation` (TEXT) |
+| `invites` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `project_id`, `component_id`, `invited_by`, `invited_email`, `status` (`pending`/`accepted`/`declined`), `created_at` |
+| `notifications` | [id](file:///d:/Ripple/frontend3/src/demo.tsx#138-169), `user_id`, `type` (`change`/`approved`/`alert`/`invite`), `message`, `metadata` (JSONB), [read](file:///d:/Ripple/frontend3/src/components/ChangeReviewPage.tsx#657-726), `created_at` |
+
+> [!IMPORTANT]
+> Data isolation is application-layer only for MVP. Every query filters by `owner_id` or verifies `component_contributors` membership. No RLS at the Postgres level.
+
+---
+
+## Phase 2 — Authentication
+
+### Flow A: Email + Password
+
+```
+POST /auth/register  { email, password, display_name }
+  → hash password (bcrypt)
+  → create user row
+  → issue access_token (JWT, 15min) + refresh_token (opaque, 7 days)
+  → Set-Cookie: refresh_token=<token>; HttpOnly; SameSite=Lax; Path=/auth/refresh
+  → return { access_token, user }
+
+POST /auth/login  { email, password }
+  → verify bcrypt
+  → same token issuance flow
+
+GET /auth/me  (cookie: refresh_token)
+  → validate refresh token
+  → return fresh { access_token, user }
+
+POST /auth/logout
+  → revoke refresh token row
+  → clear cookie
+```
+
+### Flow B: GitHub OAuth
+
+```
+GET /auth/github
+  → redirect to github.com/login/oauth/authorize?client_id=...&scope=repo,user:email
+
+GET /auth/github/callback?code=...
+  → POST to github.com/login/oauth/access_token (exchange code → github_access_token)
+  → GET github.com/user (fetch email, id, avatar)
+  → upsert user row (match on github_id)
+  → store github_access_token on user (needed for private repo import later)
+  → issue JWT pair
+  → redirect to http://localhost:5173/?token=<access_token>
+  → Set-Cookie: refresh_token (HttpOnly)
+```
+
+### [NEW] `backend/app/core/security.py`
+JWT creation/validation. bcrypt hashing. Refresh token generation (32-byte random, stored hashed).
+
+### [NEW] `backend/app/api/v1/routers/auth.py`
+All routes above. `get_current_user` dependency (validates Bearer token from `Authorization` header).
+
+### Frontend: Zustand `authStore`
+
+```
+frontend3/src/store/authStore.ts
+
+state: { accessToken: string | null, user: User | null }
+actions:
+  login(email, password) → POST /auth/login → store token in memory
+  loginGithub() → redirect to VITE_API_URL + /auth/github
+  logout() → POST /auth/logout → clear store
+  refresh() → GET /auth/me (cookie sent automatically) → store new token
+  
+On app load (main.tsx): call refresh() once
+  → success: user is logged in, stay on app
+  → error (401): redirect to /auth
+```
+
+---
+
+## Phase 3 — Core CRUD APIs
+
+### Projects
+
+```
+POST   /projects                    → create (status: draft)
+GET    /projects                    → list (owner or contributor)
+GET    /projects/{id}               → full project detail
+PATCH  /projects/{id}               → update name/description/strictness
+DELETE /projects/{id}               → archive/delete (owner only)
+POST   /projects/{id}/confirm       → set status = active
+```
+
+### Components
+
+```
+POST   /projects/{id}/components                    → create
+GET    /projects/{id}/components                    → list
+PATCH  /projects/{id}/components/{cid}              → rename/lock
+DELETE /projects/{id}/components/{cid}              → delete (unassigns files)
+POST   /projects/{id}/components/{cid}/contributors → add contributor
+DELETE /projects/{id}/components/{cid}/contributors/{uid} → remove
+```
+
+### Files
+
+```
+POST /files/upload-url          → returns presigned PUT URLs for MinIO (batch)
+POST /projects/{id}/files/confirm-batch  → browser finished uploading to MinIO, trigger parse task
+GET  /projects/{id}/files       → list parsed files (for wizard step 3)
+POST /projects/{id}/files/assign → assign file_ids to component_id (wizard step 3)
+
+POST /projects/{id}/github-import/preview  → fetch repo tree (returns file list)
+POST /projects/{id}/github-import/confirm  → trigger full parse Celery task
+```
+
+### Changes
+
+```
+POST /projects/{id}/changes                     → submit change (starts impact analysis)
+GET  /projects/{id}/changes                     → list (Active Changes Feed)
+GET  /changes/{id}/impact                       → full impact detail for Change Review page
+POST /changes/{id}/acknowledge                  → contributor confirms (change_impacts row)
+POST /changes/{id}/approve                      → owner merges (strictness gate check)
+GET  /changes?scope=mine                        → Global Changes Feed
+```
+
+### Notifications, Invites, Users
+
+```
+GET  /notifications              → paginated, filterable by type
+POST /notifications/mark-read    → { ids: [...] } or { all: true }
+POST /invites                    → owner invites by email
+POST /invites/{id}/accept
+POST /invites/{id}/decline
+GET  /users/collaborators        → all users sharing ≥1 project
+GET  /users/search?q=            → fuzzy search for contributor assignment
+```
+
+---
+
+## Phase 4 — File Upload & Parsing Pipeline
+
+### Upload Flow (Folder Upload)
+
+```
+1. Wizard Step 2: Browser calls POST /files/upload-url { files: [{name, size}] }
+   → Backend generates presigned PUT URLs for each file to MinIO
+   → Returns [{ file_id, upload_url }]
+
+2. Browser PUTs files directly to MinIO using presigned URLs
+   (parallel, progress tracked client-side)
+
+3. Browser calls POST /projects/{id}/files/confirm-batch { file_ids: [...] }
+   → Enqueues Celery task: parse_project.delay(project_id)
+   → Returns 202 Accepted
+
+4. Celery worker: parse_project(project_id)
+   → Downloads all files from MinIO
+   → Runs Tree-sitter on each .ts/.tsx/.js/.jsx file
+   → Extracts: imports, exports, function names, class names
+   → Builds component_dependencies table from cross-file imports
+   → Updates project_files.parsed_symbols (JSONB)
+   → Publishes WS event: project:files_ready { project_id }
+   → Sends notification to owner
+
+5. Frontend receives WS event → wizard advances to Step 3
+```
+
+### GitHub Import Flow
+
+```
+1. POST /projects/{id}/github-import/preview { url, branch }
+   → Uses user's github_access_token from DB
+   → Calls GitHub Contents API recursively
+   → Returns file tree (no download yet)
+
+2. POST /projects/{id}/github-import/confirm { url, branch }
+   → Enqueues Celery task: import_github_repo.delay(project_id, url, branch, github_token)
+   → 202 Accepted
+
+3. Celery: import_github_repo
+   → Downloads each .ts/.tsx/.js/.jsx file via GitHub Contents API
+   → Saves to MinIO
+   → Creates project_files rows
+   → Runs Tree-sitter (same as folder upload path)
+   → Publishes WS event: project:files_ready
+```
+
+### [NEW] `backend/app/services/impact/parser.py`
+Tree-sitter analysis. Extracts `imports`, `exports`, `function_names` per file. Builds dependency edges.
+
+---
+
+## Phase 5 — Impact Analysis (Celery + Ollama)
+
+Triggered when `POST /projects/{id}/changes` is called.
+
+```
+1. FastAPI: creates change_requests row (status: open)
+   → Creates file_drafts rows (diff between draft and stable S3 versions)
+   → Enqueues: analyze_impact.delay(change_id)
+   → Returns { change_id } immediately
+
+2. Celery: analyze_impact(change_id)
+   Phase A — Parser (fast, ~2s):
+   → Load changed files + their parsed_symbols from DB
+   → Find all files that import the changed files (direct deps)
+   → Find components those files belong to
+   → Create change_impacts rows (one per affected component/contributor)
+   → Publish WS: impact:parser_complete { change_id, affected_components }
+   → Send notifications to affected contributors
+
+   Phase B — LLM (slow, ~15-30s):
+   → For each affected file, send context diff to Ollama
+   → Prompt: "Explain in one sentence how this change in {source_file} affects {target_file}. Be specific about line numbers."
+   → Model: deepseek-coder:6.7b via localhost:11434
+   → Store result in change_impacts.llm_annotation
+   → Publish WS: impact:llm_complete { change_id }
+```
+
+### [NEW] `backend/app/services/impact/llm.py`
+Ollama HTTP calls. Graceful fallback if Ollama is not running (returns `null` annotation, parser results still show).
+
+---
+
+## Phase 6 — WebSockets
+
+### [NEW] `backend/app/core/websocket.py`
+
+```python
+class ConnectionManager:
+    # active_connections: Dict[user_id, List[WebSocket]]
+    
+    async def connect(user_id, websocket)
+    async def disconnect(user_id, websocket)
+    async def send_to_user(user_id, event_type, data)
+    async def broadcast_to_project(project_id, event_type, data)
+```
+
+### [NEW] `backend/app/core/redis.py` — Pub/Sub
+
+Celery workers cannot access FastAPI's in-memory `ConnectionManager` (different process). Bridge via Redis pub/sub:
+```
+Celery publishes → Redis channel: ws:user:{user_id}
+FastAPI async listener → receives → forwards to WebSocket
+```
+
+### WebSocket Endpoint
+
+```
+WS /api/v1/ws/{user_id}?token={access_token}
+→ validate JWT on connect
+→ register connection
+→ subscribe to Redis channel for user
+→ 30s ping/pong heartbeat
+```
+
+### Events Published
+
+| Event | Triggered By | Sent To |
+|---|---|---|
+| `project:files_ready` | parse task | project owner |
+| `impact:parser_complete` | analyze task | change author + affected contributors |
+| `impact:llm_complete` | analyze task | same |
+| `change:approved` | owner approve | all project contributors |
+| `component:status_updated` | any status change | all project contributors |
+| `invite:received` | invite created | invited user |
+| `notification:new` | any notification | target user |
+
+---
+
+## Phase 7 — Frontend API Wiring
+
+Replace all mock data in the Vite frontend with real API calls. Done component by component.
+
+### [NEW] `frontend3/src/store/authStore.ts`
+Zustand store. Access token in memory. `refresh()` called on app load.
+
+### [NEW] `frontend3/src/lib/api.ts`
+Axios instance. `baseURL = import.meta.env.VITE_API_URL`. Request interceptor attaches `Authorization: Bearer <token>`. Response interceptor: on 401, calls `refresh()` once then retries.
+
+### [NEW] `frontend3/src/hooks/useRippleSocket.ts`
+Native WebSocket hook. Connects on auth. Heartbeat. Dispatches events to React Query cache invalidations.
+
+### Component-by-component replacement
+
+| Component | Replaces | Hook |
+|---|---|---|
+| [HomePage](file:///d:/Ripple/frontend3/src/components/HomePage.tsx#380-623) | `MOCK_PROJECTS` | `useQuery(['projects'], getProjects)` |
+| [HomePage](file:///d:/Ripple/frontend3/src/components/HomePage.tsx#380-623) | `MOCK_NOTIFICATIONS` | `useQuery(['notifications'], getNotifications)` |
+| [HomePage](file:///d:/Ripple/frontend3/src/components/HomePage.tsx#380-623) | `MOCK_INVITES` | `useQuery(['invites'], getInvites)` |
+| [NewProjectWizard](file:///d:/Ripple/frontend3/src/components/NewProjectWizard.tsx#748-858) | fake parsing | real `/files/upload-url` + `/confirm-batch` + WS wait |
+| [ProjectOverviewPage](file:///d:/Ripple/frontend3/src/components/ProjectOverviewPage.tsx#520-692) | `MOCK_PROJECT` | `useQuery(['project', id], getProject)` |
+| [ChangeReviewPage](file:///d:/Ripple/frontend3/src/components/ChangeReviewPage.tsx#736-899) | `MOCK_CHANGE_DATA` | `useQuery(['change', id], getChangeImpact)` |
+| [GlobalChangesPage](file:///d:/Ripple/frontend3/src/components/GlobalChangesPage.tsx#73-271) | `MOCK_CHANGES` | `useQuery(['changes', {scope:'mine'}], getChanges)` |
+| [GlobalNotificationsPage](file:///d:/Ripple/frontend3/src/components/GlobalNotificationsPage.tsx#81-221) | `MOCK_NOTIFICATIONS` | `useQuery(['notifications'], getNotifications)` |
+| [GlobalTeamsPage](file:///d:/Ripple/frontend3/src/components/GlobalTeamsPage.tsx#50-154) | `MOCK_COLLABORATORS` | `useQuery(['collaborators'], getCollaborators)` |
+| [AuthPage](file:///d:/Ripple/frontend3/src/components/AuthPage.tsx#24-79) | hardcoded nav | real login/register calls |
+
+---
+
+## Build Sequence
+
+Build in this order — each phase is independently testable:
+
+1. **Infra** — `docker-compose.yml` → `docker-compose up` works
+2. **Config + DB** — `config.py`, `database.py`, models, first migration → tables exist
+3. **Auth** — register/login/me work with Postman
+4. **Core CRUD** — projects + components + files APIs (no parsing yet, manual DB inserts to test)
+5. **Upload pipeline** — presigned URLs → MinIO upload → Celery parse → WS `files_ready`
+6. **Changes + Impact parser** — submit change → Tree-sitter analysis → `impact:parser_complete` WS
+7. **LLM layer** — Ollama integration → `impact:llm_complete` WS
+8. **Frontend wiring** — phase by phase, one component at a time, deleting mock data as each API is confirmed working
+9. **Celery Beat** — auto-confirm task
+
+---
+
+## Verification Plan
+
+- **Each API phase**: Postman collection testing all endpoints before wiring frontend
+- **Parser**: Unit test with a sample TypeScript file, verify dependency edges
+- **WebSockets**: `wscat` CLI to connect and verify event delivery
+- **Frontend wiring**: Run the full wizard flow end-to-end with a real TypeScript project folder
+- **LLM**: Test with Ollama running; verify graceful degradation when Ollama is stopped
