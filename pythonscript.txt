@@ -1,0 +1,12 @@
+from pathlib import Path
+from parser.pipeline import run_pipeline
+import json
+
+project_root = Path("/mnt/d/Secufur/Ripple - Retry/parser/samples")
+
+result, _ = run_pipeline(
+    project_root,
+    "python::my_app::MyApp::run_field()"
+)
+
+print(json.dumps(result["data"]["summary"], indent=2))
