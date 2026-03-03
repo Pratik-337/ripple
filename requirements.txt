@@ -16,3 +16,4 @@ tree-sitter-typescript==0.23.2
 tree-sitter-javascript==0.23.1
 python-multipart==0.0.20
 psycopg2-binary==2.9.10
+neo4j==5.15.0
