@@ -128,12 +128,31 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict, max
             handled_parents.add(parent)
 
     for start_node, change_type in filtered_changes.items():
-
+        # FOR DELETIONS: We still want to see who WAS impacted by the old node
+        print(f'Processing {change_type}: {start_node}')
+        
         best_match = None
+        # Try exact match first
         for (nid, ntype, nlang) in graph.nodes.keys():
-            if nid == start_node or nid.split('(')[0] == start_node:
+            if nid == start_node:
                 best_match = nid
                 break
+        
+        # Try signature-agnostic match
+        if not best_match:
+            clean_start = start_node.split('(')[0]
+            for (nid, ntype, nlang) in graph.nodes.keys():
+                if nid.split('(')[0] == clean_start:
+                    best_match = nid
+                    break
+        
+        # Try stem-based match (fallback)
+        if not best_match:
+            stem_start = start_node.split('::')[-1]
+            for (nid, ntype, nlang) in graph.nodes.keys():
+                if nid.endswith(f"::{stem_start}"):
+                    best_match = nid
+                    break
 
         if best_match:
             node_impacts = propagate_impact(graph, best_match)
@@ -199,8 +218,10 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict, max
 
                 # Pillar: Graph-Constraint Guard
                 if node_id not in neighborhood:
-                    # Skip semantic matches that have no structural path to the change
                     continue
+                
+                # Phase 4: Inject Structural Relationship Type
+                rel_type = neighborhood.get(node_id, "SEMANTIC")
 
                 # Rule: Don't suggest a semantic hit if it was already found by the parser
                 if node_id in all_impacts:
@@ -214,7 +235,7 @@ def analyze_changes(project_root: Path, change_id: str, changed_nodes: dict, max
                 
                 try:
                     llm_calls_made += 1
-                    validation = validate_impact(changed_code, meta["code"], change_type=change_type)
+                    validation = validate_impact(changed_code, meta["code"], change_type=change_type, relationship=rel_type)
                     print(f"\n🔍 LLM Analyzing: {node_id}")
                     print(f"   - Decision: {validation.get("is_impacted", False)}")
                     print(f"   - Reasoning: {validation.get("reason", "N/A")}")

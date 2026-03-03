@@ -1,0 +1,3 @@
+{"pair_id": "499600f01bf8b970a72d4d21fbbd10a6", "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=45)", "timestamp": "Mon Mar  2 18:11:56 2026"}
+{"pair_id": "36161ee17423034262e83d68c26df50f", "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=45)", "timestamp": "Mon Mar  2 18:23:17 2026"}
+{"pair_id": "327dfd90963bbce239defe583279b199", "error": "HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=45)", "timestamp": "Mon Mar  2 18:23:58 2026"}

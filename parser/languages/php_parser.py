@@ -34,9 +34,10 @@ def parse_php(tree, source_code, filename, symbol_table):
                 body = node.child_by_field_name('body')
                 if body:
                     for sub in traverse(body):
-                        if sub.type == 'function_call_expression':
-                            f_call = sub.child_by_field_name('function')
+                        if sub.type in ['function_call_expression', 'member_call_expression']:
+                            f_call = sub.child_by_field_name('name') if sub.type == 'member_call_expression' else sub.child_by_field_name('function')
                             if f_call:
-                                res, mode = symbol_table.resolve('PHP', filename, curr_owner, normalize_call_name(text(f_call)))
+                                call_name = normalize_call_name(text(f_call))
+                                res, mode = symbol_table.resolve('PHP', filename, curr_owner, call_name)
                                 relations.append(Relation(fn_id, res, mode))
     return nodes, relations

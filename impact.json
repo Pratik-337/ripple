@@ -1,13 +1,14 @@
 {
+  "schema_version": "1.0",
   "event": "impact:parser_complete",
   "change_request_id": "manual-check",
   "data": {
     "status": "parser_complete",
     "affected_components": [
       {
-        "component_id": "f52a734b-9f1e-5a28-899d-1b2583076c0f",
-        "change_type": "LOGIC_CHANGE",
-        "component_name": "main",
+        "component_id": "b1324f04-ce1f-5629-a13b-05ed162ae5b7",
+        "change_type": "impacted_by_new_definition",
+        "component_name": "MyPhpService",
         "contributor": {
           "id": "unknown",
           "name": "Emma Carstairs",
@@ -17,14 +18,42 @@
         "detection_method": "parser",
         "affected_files": [
           {
-            "filename": "/mnt/d/Secufur/Ripple/ripple/samples/test.go",
+            "filename": "/mnt/d/Secufur/Ripple - Retry/parser/samples/my_php_lib.php",
             "affected_lines": [
               {
-                "start_line": 8,
-                "end_line": 8,
-                "original_code": "var t Server",
-                "reason": "Impacted via CHANGE from go::test::_::main() at depth 0",
-                "annotation": "CHANGE impact from go::test::_::main()",
+                "start_line": 4,
+                "end_line": 4,
+                "original_code": "public function doWork() {",
+                "reason": "Impacted via CONTAINS from php::my_php_lib::MyPhpService::doWork()",
+                "annotation": "Impacted via CONTAINS from php::my_php_lib::MyPhpService::doWork()",
+                "suggested_fix": null,
+                "confidence": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "component_id": "4400ac60-5d9f-5485-b03c-219dda6c0a4e",
+        "change_type": "NEW_DEFINITION",
+        "component_name": "doWork",
+        "contributor": {
+          "id": "unknown",
+          "name": "Emma Carstairs",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1"
+        },
+        "confidence": "high",
+        "detection_method": "parser",
+        "affected_files": [
+          {
+            "filename": "/mnt/d/Secufur/Ripple - Retry/parser/samples/my_php_lib.php",
+            "affected_lines": [
+              {
+                "start_line": 4,
+                "end_line": 6,
+                "original_code": "    public function doWork() {\n        echo 'PHP work done';\n    }",
+                "reason": "Impacted via CHANGE from php::my_php_lib::MyPhpService::doWork()",
+                "annotation": "Impacted via CHANGE from php::my_php_lib::MyPhpService::doWork()",
                 "suggested_fix": null,
                 "confidence": 1.0
               }
@@ -34,7 +63,7 @@
       },
       {
         "component_id": "b0cfe6b8-9597-58c4-b1e0-909fc45717e2",
-        "change_type": "LOGIC_CHANGE",
+        "change_type": "impacted_by_new_definition",
         "component_name": "mainApp",
         "contributor": {
           "id": "unknown",
@@ -45,14 +74,14 @@
         "detection_method": "parser",
         "affected_files": [
           {
-            "filename": "/mnt/d/Secufur/Ripple/ripple/samples/my_php_app.php",
+            "filename": "/mnt/d/Secufur/Ripple - Retry/parser/samples/my_php_app.php",
             "affected_lines": [
               {
-                "start_line": 5,
-                "end_line": 5,
-                "original_code": "$service != new MyPhpService();",
-                "reason": "Impacted via CHANGE from php::my_php_app::mainApp() at depth 0",
-                "annotation": "CHANGE impact from php::my_php_app::mainApp()",
+                "start_line": 4,
+                "end_line": 8,
+                "original_code": "function mainApp() {\n    $service = new MyPhpService();\n    $service->doWork();\n    globalPhpFunction();\n}",
+                "reason": "Impacted via CALLS_DYNAMIC from php::my_php_lib::MyPhpService::doWork()",
+                "annotation": "Impacted via CALLS_DYNAMIC from php::my_php_lib::MyPhpService::doWork()",
                 "suggested_fix": null,
                 "confidence": 1.0
               }
@@ -63,10 +92,10 @@
     ],
     "unaffected_components": [],
     "summary": {
-      "total_affected": 2,
+      "total_affected": 3,
       "total_files_flagged": 2,
       "detection_method": "parser",
-      "llm_analysis_pending": true
+      "llm_analysis_pending": false
     }
   }
 }

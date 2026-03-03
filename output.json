@@ -1,2076 +1,784 @@
 {
   "nodes": [
     {
-      "id": "python::module_0::func_0()",
+      "id": "c::my_c_app::main()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
+      "language": "C",
+      "file": "my_c_app",
       "start_line": 4,
-      "end_line": 6
+      "end_line": 7
     },
     {
-      "id": "python::module_0::func_1()",
+      "id": "c::my_c_lib::do_c_work()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 8,
+      "language": "C",
+      "file": "my_c_lib",
+      "start_line": 5,
+      "end_line": 7
+    },
+    {
+      "id": "cpp::test::Calculator",
+      "type": "CLASS",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 3,
+      "end_line": 9
+    },
+    {
+      "id": "cpp::test::Calculator::add()",
+      "type": "METHOD",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 5,
+      "end_line": 8
+    },
+    {
+      "id": "cpp::test::main()",
+      "type": "FUNCTION",
+      "language": "CPP",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 16
+    },
+    {
+      "id": "go::test::_::main()",
+      "type": "FUNCTION",
+      "language": "GO",
+      "file": "test",
+      "start_line": 7,
       "end_line": 10
     },
     {
-      "id": "python::module_0::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_0::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_0::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_0::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_0::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_0::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_0::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_0::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_0::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_0",
+      "id": "iostream",
+      "type": "IMPORT",
+      "language": "CPP",
+      "file": "test",
       "start_line": 1,
       "end_line": 2
     },
     {
-      "id": "python::module_10::func_0()",
+      "id": "java::default::UserController",
+      "type": "CLASS",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 1,
+      "end_line": 16
+    },
+    {
+      "id": "java::default::UserController::getUsers()",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 7,
+      "end_line": 10
+    },
+    {
+      "id": "java::default::UserController::handleLocalService()",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 12,
+      "end_line": 15
+    },
+    {
+      "id": "java::default::UserController::handleUserRequest()",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserController",
+      "start_line": 6,
+      "end_line": 9
+    },
+    {
+      "id": "java::default::UserService",
+      "type": "CLASS",
+      "language": "JAVA",
+      "file": "UserService",
+      "start_line": 1,
+      "end_line": 8
+    },
+    {
+      "id": "java::default::UserService::getUsers()",
+      "type": "METHOD",
+      "language": "JAVA",
+      "file": "UserService",
+      "start_line": 3,
+      "end_line": 7
+    },
+    {
+      "id": "javascript::app::loadUsers()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
+      "language": "JAVASCRIPT",
+      "file": "app",
+      "start_line": 1,
+      "end_line": 5
+    },
+    {
+      "id": "javascript::test::MyJsApp",
+      "type": "CLASS",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 20,
+      "end_line": 31
+    },
+    {
+      "id": "javascript::test::MyJsApp::constructor()",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 21,
+      "end_line": 23
+    },
+    {
+      "id": "javascript::test::MyJsApp::runApp()",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 25,
+      "end_line": 30
+    },
+    {
+      "id": "javascript::test::MyJsService",
+      "type": "CLASS",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 1,
+      "end_line": 9
+    },
+    {
+      "id": "javascript::test::MyJsService::constructor()",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 2,
+      "end_line": 4
+    },
+    {
+      "id": "javascript::test::MyJsService::getData()",
+      "type": "METHOD",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 6,
+      "end_line": 8
+    },
+    {
+      "id": "javascript::test::runJsExample()",
+      "type": "FUNCTION",
+      "language": "JAVASCRIPT",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 17
+    },
+    {
+      "id": "kotlin::main::App",
+      "type": "CLASS",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 7,
+      "end_line": 9
+    },
+    {
+      "id": "kotlin::main::App::run()",
+      "type": "METHOD",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 8,
+      "end_line": 8
+    },
+    {
+      "id": "kotlin::main::Service",
+      "type": "CLASS",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 3,
+      "end_line": 5
+    },
+    {
+      "id": "kotlin::main::Service::run()",
+      "type": "METHOD",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 4,
+      "end_line": 4
+    },
+    {
+      "id": "kotlin::main::_::main()",
+      "type": "FUNCTION",
+      "language": "KOTLIN",
+      "file": "test",
+      "start_line": 11,
+      "end_line": 14
+    },
+    {
+      "id": "my_c_lib.h",
+      "type": "IMPORT",
+      "language": "C",
+      "file": "my_c_app",
+      "start_line": 2,
+      "end_line": 3
+    },
+    {
+      "id": "php::my_php_app::mainApp()",
+      "type": "FUNCTION",
+      "language": "PHP",
+      "file": "my_php_app",
+      "start_line": 4,
+      "end_line": 8
+    },
+    {
+      "id": "php::my_php_lib::MyPhpService",
+      "type": "CLASS",
+      "language": "PHP",
+      "file": "my_php_lib",
+      "start_line": 3,
+      "end_line": 7
+    },
+    {
+      "id": "php::my_php_lib::MyPhpService::doWork()",
+      "type": "METHOD",
+      "language": "PHP",
+      "file": "my_php_lib",
       "start_line": 4,
       "end_line": 6
     },
     {
-      "id": "python::module_10::func_1()",
+      "id": "php::my_php_lib::globalPhpFunction()",
+      "type": "FUNCTION",
+      "language": "PHP",
+      "file": "my_php_lib",
+      "start_line": 9,
+      "end_line": 11
+    },
+    {
+      "id": "python::main::main()",
       "type": "FUNCTION",
       "language": "PYTHON",
-      "file": "module_10",
+      "file": "main",
+      "start_line": 3,
+      "end_line": 4
+    },
+    {
+      "id": "python::my_app::MyApp",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 4,
+      "end_line": 15
+    },
+    {
+      "id": "python::my_app::MyApp::__init__()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 5,
+      "end_line": 7
+    },
+    {
+      "id": "python::my_app::MyApp::run_field()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 9,
+      "end_line": 10
+    },
+    {
+      "id": "python::my_app::MyApp::run_local()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 12,
+      "end_line": 15
+    },
+    {
+      "id": "python::my_app::main()",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "my_app",
+      "start_line": 17,
+      "end_line": 20
+    },
+    {
+      "id": "python::my_services::MyService",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "my_services",
+      "start_line": 1,
+      "end_line": 3
+    },
+    {
+      "id": "python::my_services::MyService::do_work()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "my_services",
+      "start_line": 2,
+      "end_line": 3
+    },
+    {
+      "id": "python::test::A",
+      "type": "CLASS",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 14,
+      "end_line": 19
+    },
+    {
+      "id": "python::test::A::bar()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 18,
+      "end_line": 19
+    },
+    {
+      "id": "python::test::A::foo()",
+      "type": "METHOD",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 15,
+      "end_line": 16
+    },
+    {
+      "id": "python::test::helper()",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "test",
+      "start_line": 5,
+      "end_line": 6
+    },
+    {
+      "id": "python::test::main()",
+      "type": "FUNCTION",
+      "language": "PYTHON",
+      "file": "test",
       "start_line": 8,
       "end_line": 10
     },
     {
-      "id": "python::module_10::func_2()",
+      "id": "python::utils::helper()",
       "type": "FUNCTION",
       "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_10::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_10::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_10::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_10::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_10::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_10::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_10::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_10::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_10",
+      "file": "utils",
       "start_line": 1,
       "end_line": 2
     },
     {
-      "id": "python::module_11::func_0()",
+      "id": "rust::crate::main::A",
+      "type": "STRUCT",
+      "language": "RUST",
+      "file": "test2",
+      "start_line": 1,
+      "end_line": 1
+    },
+    {
+      "id": "rust::crate::main::A::foo()",
+      "type": "METHOD",
+      "language": "RUST",
+      "file": "test2",
+      "start_line": 5,
+      "end_line": 5
+    },
+    {
+      "id": "rust::crate::main::App",
+      "type": "STRUCT",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 5,
+      "end_line": 5
+    },
+    {
+      "id": "rust::crate::main::App::run()",
+      "type": "METHOD",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 8,
+      "end_line": 8
+    },
+    {
+      "id": "rust::crate::main::Service",
+      "type": "TRAIT",
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 1,
+      "end_line": 3
+    },
+    {
+      "id": "rust::crate::main::_::helper()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
+      "language": "RUST",
+      "file": "test",
       "start_line": 4,
       "end_line": 6
     },
     {
-      "id": "python::module_11::func_1()",
+      "id": "rust::crate::main::_::main()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_11::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 12,
+      "language": "RUST",
+      "file": "rust_trait",
+      "start_line": 11,
       "end_line": 14
     },
     {
-      "id": "python::module_11::func_3()",
+      "id": "rust::crate::main::_::read_file()",
       "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 16,
-      "end_line": 18
+      "language": "RUST",
+      "file": "test",
+      "start_line": 13,
+      "end_line": 15
     },
     {
-      "id": "python::module_11::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 20,
-      "end_line": 22
+      "id": "stdio.h",
+      "type": "IMPORT",
+      "language": "C",
+      "file": "my_c_lib",
+      "start_line": 2,
+      "end_line": 3
     },
     {
-      "id": "python::module_11::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
+      "id": "typescript::test::MyTsApp",
+      "type": "CLASS",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 21,
+      "end_line": 31
+    },
+    {
+      "id": "typescript::test::MyTsApp::constructor()",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
       "start_line": 24,
       "end_line": 26
     },
     {
-      "id": "python::module_11::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
+      "id": "typescript::test::MyTsApp::runApp()",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
       "start_line": 28,
       "end_line": 30
     },
     {
-      "id": "python::module_11::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_11::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_11::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_11::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_11",
+      "id": "typescript::test::MyTsService",
+      "type": "CLASS",
+      "language": "TYPESCRIPT",
+      "file": "test",
       "start_line": 1,
-      "end_line": 2
+      "end_line": 11
     },
     {
-      "id": "python::module_12::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
+      "id": "typescript::test::MyTsService::constructor()",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
       "start_line": 4,
       "end_line": 6
     },
     {
-      "id": "python::module_12::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
+      "id": "typescript::test::MyTsService::getData()",
+      "type": "METHOD",
+      "language": "TYPESCRIPT",
+      "file": "test",
       "start_line": 8,
       "end_line": 10
     },
     {
-      "id": "python::module_12::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_12::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_12::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_12::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_12::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_12::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_12::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_12::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_12::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_12",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_13::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_13::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_13::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_13::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_13::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_13::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_13::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_13::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_13::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_13::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_13::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_13",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_14::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_14::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_14::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_14::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_14::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_14::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_14::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_14::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_14::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_14::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_14::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_14",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_1::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_1::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_1::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_1::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_1::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_1::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_1::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_1::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_1::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_1::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_1::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_1",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_2::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_2::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_2::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_2::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_2::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_2::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_2::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_2::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_2::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_2::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_2::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_2",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_3::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_3::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_3::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_3::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_3::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_3::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_3::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_3::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_3::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_3::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_3::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_3",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_4::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_4::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_4::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_4::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_4::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_4::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_4::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_4::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_4::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_4::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_4::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_4",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_5::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_5::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_5::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_5::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_5::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_5::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_5::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_5::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_5::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_5::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_5::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_5",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_6::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_6::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_6::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_6::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_6::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_6::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_6::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_6::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_6::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_6::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_6::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_6",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_7::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_7::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_7::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_7::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_7::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_7::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_7::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_7::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_7::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_7::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_7::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_7",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_8::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_8::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_8::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_8::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_8::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_8::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_8::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_8::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_8::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_8::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_8::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_8",
-      "start_line": 1,
-      "end_line": 2
-    },
-    {
-      "id": "python::module_9::func_0()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 4,
-      "end_line": 6
-    },
-    {
-      "id": "python::module_9::func_1()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 8,
-      "end_line": 10
-    },
-    {
-      "id": "python::module_9::func_2()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 12,
-      "end_line": 14
-    },
-    {
-      "id": "python::module_9::func_3()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 16,
-      "end_line": 18
-    },
-    {
-      "id": "python::module_9::func_4()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 20,
-      "end_line": 22
-    },
-    {
-      "id": "python::module_9::func_5()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 24,
-      "end_line": 26
-    },
-    {
-      "id": "python::module_9::func_6()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 28,
-      "end_line": 30
-    },
-    {
-      "id": "python::module_9::func_7()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 32,
-      "end_line": 34
-    },
-    {
-      "id": "python::module_9::func_8()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 36,
-      "end_line": 38
-    },
-    {
-      "id": "python::module_9::func_9()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 40,
-      "end_line": 42
-    },
-    {
-      "id": "python::module_9::func_root()",
-      "type": "FUNCTION",
-      "language": "PYTHON",
-      "file": "module_9",
-      "start_line": 1,
-      "end_line": 2
+      "id": "typescript::test::runTsExample()",
+      "type": "FUNCTION",
+      "language": "TYPESCRIPT",
+      "file": "test",
+      "start_line": 13,
+      "end_line": 19
     }
   ],
   "relations": [
     {
-      "from": "python::module_0::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_0::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_10::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_11::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_12::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_13::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_14::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_1::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_2::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_3::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_4::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_4::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
-    },
-    {
-      "from": "python::module_4::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "@GetMapping(\"/users\")",
+      "to": "java::default::UserController::getUsers()",
+      "type": "ANNOTATED_WITH"
     },
     {
-      "from": "python::module_4::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
+      "from": "c::my_c_app::main()",
+      "to": "c::my_c_lib::do_c_work()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_4::func_4()",
-      "to": "python::module_7::func_3()",
+      "from": "c::my_c_lib::do_c_work()",
+      "to": "printf",
       "type": "CALLS"
     },
     {
-      "from": "python::module_4::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
+      "from": "cpp::test::Calculator",
+      "to": "cpp::test::Calculator::add()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_4::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
+      "from": "cpp::test::main()",
+      "to": "cpp::test::Calculator::add()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_4::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
+      "from": "go::test::_",
+      "to": "go::test::_::main()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_4::func_8()",
-      "to": "python::module_1::func_7()",
+      "from": "go::test::_::main()",
+      "to": "Start",
       "type": "CALLS"
     },
     {
-      "from": "python::module_4::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
+      "from": "java::default::UserController",
+      "to": "java::default::UserController::getUsers()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_5::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
+      "from": "java::default::UserController",
+      "to": "java::default::UserController::handleLocalService()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_5::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
+      "from": "java::default::UserController",
+      "to": "java::default::UserController::handleUserRequest()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_5::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "java::default::UserController::handleLocalService()",
+      "to": "java::default::UserService::getUsers()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_5::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
+      "from": "java::default::UserController::handleUserRequest()",
+      "to": "java::default::UserService::getUsers()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_5::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
+      "from": "java::default::UserService",
+      "to": "java::default::UserService::getUsers()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_5::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
+      "from": "javascript::app::loadUsers()",
+      "to": "/users",
+      "type": "USES_API_PATH"
     },
     {
-      "from": "python::module_5::func_6()",
-      "to": "python::module_10::func_5()",
+      "from": "javascript::app::loadUsers()",
+      "to": "fetch",
       "type": "CALLS"
     },
     {
-      "from": "python::module_5::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
+      "from": "javascript::app::loadUsers()",
+      "to": "java::default::UserController::getUsers()",
+      "type": "CALLS_API"
     },
     {
-      "from": "python::module_5::func_8()",
-      "to": "python::module_1::func_7()",
+      "from": "javascript::app::loadUsers()",
+      "to": "log",
       "type": "CALLS"
     },
     {
-      "from": "python::module_5::func_9()",
-      "to": "python::module_7::func_8()",
+      "from": "javascript::app::loadUsers()",
+      "to": "text",
       "type": "CALLS"
     },
     {
-      "from": "python::module_6::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
+      "from": "javascript::test::MyJsApp",
+      "to": "javascript::test::MyJsApp::constructor()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
+      "from": "javascript::test::MyJsApp",
+      "to": "javascript::test::MyJsApp::runApp()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "javascript::test::MyJsApp::runApp()",
+      "to": "javascript::test::MyJsService::getData()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_6::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
+      "from": "javascript::test::MyJsService",
+      "to": "javascript::test::MyJsService::constructor()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
+      "from": "javascript::test::MyJsService",
+      "to": "javascript::test::MyJsService::getData()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
+      "from": "javascript::test::runJsExample()",
+      "to": "javascript::test::MyJsService::getData()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_6::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
+      "from": "kotlin::main::App",
+      "to": "kotlin::main::App::run()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
+      "from": "kotlin::main::Service",
+      "to": "kotlin::main::Service::run()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_6::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
+      "from": "php::my_php_app::mainApp()",
+      "to": "php::my_php_lib::MyPhpService::doWork()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_6::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
+      "from": "php::my_php_app::mainApp()",
+      "to": "php::my_php_lib::globalPhpFunction()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_7::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
+      "from": "php::my_php_lib::MyPhpService",
+      "to": "php::my_php_lib::MyPhpService::doWork()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_7::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
+      "from": "python::main::main()",
+      "to": "python::test::helper()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_7::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp::__init__()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_7::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp::run_field()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_7::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
+      "from": "python::my_app::MyApp",
+      "to": "python::my_app::MyApp::run_local()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_7::func_5()",
-      "to": "python::module_4::func_4()",
+      "from": "python::my_app::MyApp::__init__()",
+      "to": "MyService",
       "type": "CALLS"
     },
     {
-      "from": "python::module_7::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
+      "from": "python::my_app::MyApp::run_field()",
+      "to": "python::my_services::MyService::do_work()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_7::func_7()",
-      "to": "python::module_14::func_6()",
+      "from": "python::my_app::MyApp::run_local()",
+      "to": "MyService",
       "type": "CALLS"
     },
     {
-      "from": "python::module_7::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
+      "from": "python::my_app::MyApp::run_local()",
+      "to": "python::my_services::MyService::do_work()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_7::func_9()",
-      "to": "python::module_7::func_8()",
+      "from": "python::my_app::main()",
+      "to": "MyApp",
       "type": "CALLS"
     },
     {
-      "from": "python::module_8::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
+      "from": "python::my_app::main()",
+      "to": "python::my_app::MyApp::run_field()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_8::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
+      "from": "python::my_app::main()",
+      "to": "python::my_app::MyApp::run_local()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_8::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "python::my_services::MyService",
+      "to": "python::my_services::MyService::do_work()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_8::func_3()",
-      "to": "python::module_0::func_2()",
-      "type": "CALLS"
+      "from": "python::test::A",
+      "to": "python::test::A::bar()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_8::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
+      "from": "python::test::A",
+      "to": "python::test::A::foo()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_8::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
+      "from": "python::test::A::foo()",
+      "to": "python::test::A::bar()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_8::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
+      "from": "python::test::main()",
+      "to": "python::test::helper()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_8::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
+      "from": "rust::crate::main::A",
+      "to": "rust::crate::main::A::foo()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_8::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
+      "from": "rust::crate::main::App",
+      "to": "rust::crate::main::App::run()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_8::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
+      "from": "rust::crate::main::App",
+      "to": "rust::crate::main::Service",
+      "type": "IMPLEMENTS"
     },
     {
-      "from": "python::module_9::func_0()",
-      "to": "python::module_3::func_root()",
-      "type": "CALLS"
+      "from": "rust::crate::main::_::main()",
+      "to": "rust::crate::main::App::run()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_9::func_1()",
-      "to": "python::module_10::func_0()",
-      "type": "CALLS"
+      "from": "rust::crate::main::_::main()",
+      "to": "rust::crate::main::_::helper()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_9::func_2()",
-      "to": "python::module_2::func_1()",
-      "type": "CALLS"
+      "from": "rust::crate::main::_::main()",
+      "to": "rust::crate::main::_::read_file()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_9::func_3()",
-      "to": "python::module_0::func_2()",
+      "from": "rust::crate::main::_::read_file()",
+      "to": "fs::read_to_string",
       "type": "CALLS"
     },
     {
-      "from": "python::module_9::func_4()",
-      "to": "python::module_7::func_3()",
-      "type": "CALLS"
+      "from": "typescript::test::MyTsApp",
+      "to": "typescript::test::MyTsApp::constructor()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_9::func_5()",
-      "to": "python::module_4::func_4()",
-      "type": "CALLS"
+      "from": "typescript::test::MyTsApp",
+      "to": "typescript::test::MyTsApp::runApp()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_9::func_6()",
-      "to": "python::module_10::func_5()",
-      "type": "CALLS"
+      "from": "typescript::test::MyTsApp::runApp()",
+      "to": "typescript::test::MyTsService::getData()",
+      "type": "CALLS_DYNAMIC"
     },
     {
-      "from": "python::module_9::func_7()",
-      "to": "python::module_14::func_6()",
-      "type": "CALLS"
+      "from": "typescript::test::MyTsService",
+      "to": "typescript::test::MyTsService::constructor()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_9::func_8()",
-      "to": "python::module_1::func_7()",
-      "type": "CALLS"
+      "from": "typescript::test::MyTsService",
+      "to": "typescript::test::MyTsService::getData()",
+      "type": "CONTAINS"
     },
     {
-      "from": "python::module_9::func_9()",
-      "to": "python::module_7::func_8()",
-      "type": "CALLS"
+      "from": "typescript::test::runTsExample()",
+      "to": "typescript::test::MyTsService::getData()",
+      "type": "CALLS_DYNAMIC"
     }
   ]
 }

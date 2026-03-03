@@ -58,9 +58,19 @@ def parse_python(tree, source_code, filename, symbol_table):
                         elif sub_node.type == 'assignment':
                             left = sub_node.child_by_field_name('left')
                             right = sub_node.child_by_field_name('right')
+                            # Handle local variables: x = Class()
                             if left and right and left.type == 'identifier':
-                                if (right.type == 'call' and right.child_by_field_name('function') and 
-                                    (text(right.child_by_field_name('function')), 'CLASS') in [(d['id'], d['type']) for d in symbol_table.definitions.values()]):
-                                    local_scope[text(left)] = text(right.child_by_field_name('function'))
+                                if (right.type == 'call' and right.child_by_field_name('function')):
+                                    call_text = text(right.child_by_field_name('function'))
+                                    local_scope[text(left)] = call_text
+                            
+                            # Handle class fields: self.x = Class()
+                            if left and right and left.type == 'attribute':
+                                if (right.type == 'call' and right.child_by_field_name('function')):
+                                    attr_text = text(left)
+                                    if attr_text.startswith('self.'):
+                                        field_name = attr_text.replace('self.', '')
+                                        field_type = text(right.child_by_field_name('function'))
+                                        symbol_table.add_field_to_class('PYTHON', curr_owner, field_name, field_type)
 
     return nodes, relations

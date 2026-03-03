@@ -41,6 +41,7 @@ class SymbolTable:
     def add_import(self, file, alias, target): self.imports.setdefault(file, {})[alias] = target
 
     def resolve(self, lang, current_file, current_owner, call_name, local_scope=None):
+        # print(f"   [Resolver] Attempting: {call_name} in {current_owner}")
         obj, meth = None, call_name
         if '::' in call_name:
             parts = call_name.rsplit('::', 1)
@@ -72,13 +73,28 @@ class SymbolTable:
                     if (lang == 'JAVA' or lang == 'KOTLIN') and not res.endswith('()'): res += '()'
                     return res, 'CALLS_DYNAMIC'
 
+        # FALLBACK: If type resolution fails, search for any node ending with ::method() or method()
+        search_meth = meth.split('(')[0] if '(' in meth else meth
+        potential_matches = []
+        
+        for type_key in ['METHOD', 'FUNCTION']:
+            for fqn in self.index[lang].get(type_key, []):
+                clean_fqn = fqn.split('(')[0]
+                if clean_fqn.endswith(f'::{search_meth}') or clean_fqn == search_meth:
+                    potential_matches.append(fqn)
+        
+        # If we find exactly one match, we are confident. 
+        # If multiple, we return the first but mark it as dynamic.
+        if potential_matches:
+            return potential_matches[0], 'CALLS_DYNAMIC'
+
+                # FALLBACK: Global search
         search_meth = meth.split('(')[0] if '(' in meth else meth
         for type_key in ['METHOD', 'FUNCTION']:
             for fqn in self.index[lang].get(type_key, []):
                 clean_fqn = fqn.split('(')[0]
                 if clean_fqn.endswith(f'::{search_meth}') or clean_fqn == search_meth:
-                    return fqn, 'CALLS_DYNAMIC' if type_key == 'METHOD' else 'CALLS'
-
+                    return fqn, 'CALLS_DYNAMIC'
         return call_name, 'CALLS'
 
     def _build_fqn(self, lang, owner_type, meth_name):

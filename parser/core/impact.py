@@ -20,6 +20,7 @@ def propagate_impact(graph, start_node_id, max_depth=5):
 
     while queue:
         curr_id, depth, via = queue.popleft()
+        print(f"   [Impact] Visiting: {curr_id} (via {via}, depth {depth})")
         
         # If we already saw this node at a shallower depth, skip
         if curr_id in impacted_nodes and impacted_nodes[curr_id]['depth'] <= depth:
@@ -31,11 +32,7 @@ def propagate_impact(graph, start_node_id, max_depth=5):
         
         if depth < max_depth:
             for caller_id, rel_type in rev_adj.get(curr_id, []):
-                # NOISE REDUCTION: 
-                # If we reached curr_id via CONTAINS, don't propagate further 
-                # (i.e., don't flag callers of a class just because one of its methods changed)
-                if via == 'CONTAINS' and rel_type != 'CHANGE':
-                    continue
+
                 
                 queue.append((caller_id, depth + 1, rel_type))
                 
