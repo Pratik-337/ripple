@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { componentsApi, changesApi } from "@/src/lib/api";
+// ---> ADDED projectsApi HERE <---
+import { componentsApi, changesApi, projectsApi } from "@/src/lib/api";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -42,10 +43,6 @@ interface Dependency {
     hasActiveChange: boolean;
     label?: string;
 }
-
-// ─── Mock Data ─────────────────────────────────────────────────────────────
-
-
 
 // ─── Status Config ──────────────────────────────────────────────────────────
 
@@ -86,7 +83,6 @@ function getLayoutedElements(
 // ─── Custom Animated Edge ───────────────────────────────────────────────────
 
 const EDGE_COLORS = { import: "#8b5cf6", calls: "#3b82f6", event: "#10b981" };
-const EDGE_LABELS: Record<string, string> = { import: "imports", calls: "calls", event: "event" };
 
 function AnimatedChangeEdge({
     id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition,
@@ -141,7 +137,6 @@ function ComponentGraphNode({ data, selected }: NodeProps) {
             selected ? "border-violet-400/60 shadow-[0_0_20px_rgba(139,92,246,0.3)] scale-105" : "hover:border-white/20 hover:shadow-[0_0_12px_rgba(255,255,255,0.08)]",
             data.status === "locked" ? "opacity-70" : ""
         )}>
-            {/* Active change pulse ring */}
             {data.activeChanges > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-60" />
@@ -157,35 +152,14 @@ function ComponentGraphNode({ data, selected }: NodeProps) {
                 <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", cfg.badge)}>
                     {cfg.label}
                 </span>
-                {data.activeChanges > 0 && (
-                    <span className="text-[9px] text-orange-400/80 bg-orange-400/10 px-1 py-0.5 rounded-full ml-auto">
-                        {data.activeChanges} active
-                    </span>
-                )}
             </div>
 
-            <p className="text-[13px] font-bold text-white leading-tight mb-2">{data.name}</p>
+            <p className="text-[13px] font-bold text-white leading-tight mb-2 truncate" title={data.name}>{data.name}</p>
 
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[10px] text-white/30">
-                    <span className="flex items-center gap-0.5"><FileCode2 className="h-2.5 w-2.5" />{data.fileCount}</span>
-                    <span className="flex items-center gap-0.5"><Clock className="h-2.5 w-2.5" />{data.lastActivity}</span>
-                </div>
-                <div className="flex items-center">
-                    {data.contributors.slice(0, maxAvatars).map((c: Contributor, i: number) => (
-                        <div
-                            key={c.id}
-                            style={{ marginLeft: i === 0 ? 0 : -5, zIndex: maxAvatars - i }}
-                            className={cn("h-5 w-5 rounded-full bg-gradient-to-br flex items-center justify-center text-[8px] font-bold text-white relative border border-zinc-950", c.color)}
-                        >
-                            {c.initials}
-                        </div>
-                    ))}
-                    {data.contributors.length > maxAvatars && (
-                        <div className="h-5 w-5 rounded-full bg-white/10 flex items-center justify-center text-[8px] text-white/50 border border-zinc-950 relative" style={{ marginLeft: -5, zIndex: 0 }}>
-                            +{data.contributors.length - maxAvatars}
-                        </div>
-                    )}
+                <div className="flex items-center gap-2 text-[10px] text-white/30 truncate">
+                    <span className="flex items-center gap-0.5"><FileCode2 className="h-2.5 w-2.5" />Type:</span>
+                    <span className="truncate">{data.lastActivity}</span>
                 </div>
             </div>
         </div>
@@ -216,48 +190,21 @@ const DetailPanel = ({
 
     return (
         <aside className="absolute right-4 top-4 bottom-4 w-72 bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-2xl flex flex-col shadow-2xl z-10 overflow-hidden">
-            {/* Header */}
             <div className="flex items-start justify-between px-4 py-3.5 border-b border-white/[0.06]">
-                <div>
+                <div className="overflow-hidden">
                     <div className="flex items-center gap-1.5 mb-1">
                         <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
                         <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", cfg.badge)}>{cfg.label}</span>
                     </div>
-                    <h3 className="text-[14px] font-bold text-white">{component.name}</h3>
-                    <p className="text-[11px] text-white/35 mt-0.5">{component.fileCount} files · {component.lastActivity}</p>
+                    <h3 className="text-[14px] font-bold text-white break-all">{component.name}</h3>
+                    <p className="text-[11px] text-white/35 mt-0.5">Type: {component.lastActivity}</p>
                 </div>
-                <button onClick={onClose} className="text-white/25 hover:text-white transition-colors mt-0.5">
+                <button onClick={onClose} className="text-white/25 hover:text-white transition-colors mt-0.5 shrink-0 ml-2">
                     <X className="h-4 w-4" />
                 </button>
             </div>
 
             <div className="flex-1 overflow-y-auto">
-                {/* Contributors */}
-                <div className="px-4 py-3 border-b border-white/[0.04]">
-                    <p className="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2">Contributors</p>
-                    <div className="space-y-1.5">
-                        {component.contributors.map(c => (
-                            <div key={c.id} className="flex items-center gap-2">
-                                <div className={cn("h-5 w-5 rounded-full bg-gradient-to-br flex items-center justify-center text-[8px] font-bold text-white shrink-0", c.color)}>
-                                    {c.initials}
-                                </div>
-                                <span className="text-xs text-white/60">{c.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Active changes */}
-                {component.activeChanges > 0 && (
-                    <div className="px-4 py-3 border-b border-white/[0.04]">
-                        <div className="flex items-center gap-1.5">
-                            <span className="h-2 w-2 rounded-full bg-orange-400 animate-pulse" />
-                            <p className="text-xs text-orange-400 font-medium">{component.activeChanges} active change{component.activeChanges > 1 ? "s" : ""} propagating</p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Edges — upstream */}
                 {incoming.length > 0 && (
                     <div className="px-4 py-3 border-b border-white/[0.04]">
                         <p className="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2">Depends on</p>
@@ -267,9 +214,8 @@ const DetailPanel = ({
                                 return src ? (
                                     <div key={i} className="flex items-center gap-2">
                                         <div className={cn("h-2 w-2 rounded-full shrink-0", STATUS_CFG[src.status].dot)} />
-                                        <span className="text-xs text-white/60 flex-1">{src.name}</span>
+                                        <span className="text-xs text-white/60 flex-1 truncate">{src.name}</span>
                                         <span className="text-[9px] font-mono text-white/25 bg-white/5 px-1.5 rounded">{dep.label}</span>
-                                        {dep.hasActiveChange && <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />}
                                     </div>
                                 ) : null;
                             })}
@@ -277,7 +223,6 @@ const DetailPanel = ({
                     </div>
                 )}
 
-                {/* Edges — downstream */}
                 {outgoing.length > 0 && (
                     <div className="px-4 py-3 border-b border-white/[0.04]">
                         <p className="text-[10px] font-semibold text-white/30 uppercase tracking-wider mb-2">Used by</p>
@@ -287,25 +232,14 @@ const DetailPanel = ({
                                 return tgt ? (
                                     <div key={i} className="flex items-center gap-2">
                                         <div className={cn("h-2 w-2 rounded-full shrink-0", STATUS_CFG[tgt.status].dot)} />
-                                        <span className="text-xs text-white/60 flex-1">{tgt.name}</span>
+                                        <span className="text-xs text-white/60 flex-1 truncate">{tgt.name}</span>
                                         <span className="text-[9px] font-mono text-white/25 bg-white/5 px-1.5 rounded">{dep.label}</span>
-                                        {dep.hasActiveChange && <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />}
                                     </div>
                                 ) : null;
                             })}
                         </div>
                     </div>
                 )}
-            </div>
-
-            <div className="px-4 py-3 border-t border-white/[0.06]">
-                <button
-                    id={`graph-open-ide-${component.id}`}
-                    onClick={onOpenIDE}
-                    className="w-full py-2 text-xs font-bold text-black bg-white hover:bg-white/90 rounded-xl transition-colors"
-                >
-                    Open in IDE
-                </button>
             </div>
         </aside>
     );
@@ -318,10 +252,9 @@ const Legend = () => (
         <p className="text-[9px] font-semibold text-white/30 uppercase tracking-wider">Legend</p>
         <div className="space-y-1.5">
             {[
-                { color: "bg-emerald-400", label: "Stable" },
-                { color: "bg-orange-400", label: "Flagged — active change" },
-                { color: "bg-yellow-400", label: "Pending review" },
-                { color: "bg-white/30", label: "Locked" },
+                { color: "bg-emerald-400", label: "Files" },
+                { color: "bg-yellow-400", label: "Exports/Functions" },
+                { color: "bg-white/30", label: "External Modules" },
             ].map(({ color, label }) => (
                 <div key={label} className="flex items-center gap-2">
                     <span className={cn("h-2 w-2 rounded-full shrink-0", color)} />
@@ -329,25 +262,10 @@ const Legend = () => (
                 </div>
             ))}
         </div>
-        <div className="pt-1 border-t border-white/[0.06] space-y-1.5">
-            {[
-                { color: "bg-violet-500", label: "import", animated: false },
-                { color: "bg-blue-500", label: "calls", animated: false },
-                { color: "bg-emerald-500", label: "event", animated: false },
-                { color: "bg-orange-400", label: "active propagation", animated: true },
-            ].map(({ color, label, animated }) => (
-                <div key={label} className="flex items-center gap-2">
-                    <div className="relative h-0.5 w-6 bg-white/10 rounded-full overflow-hidden">
-                        <div className={cn("h-full rounded-full", color, animated ? "w-3" : "w-6")} />
-                    </div>
-                    <span className="text-[10px] text-white/40">{label}</span>
-                </div>
-            ))}
-        </div>
     </div>
 );
 
-// ─── Inner Graph (needs ReactFlowProvider) ──────────────────────────────────
+// ─── Inner Graph ────────────────────────────────────────────────────────────
 
 interface InnerGraphProps {
     components: ComponentNode[];
@@ -414,21 +332,12 @@ function InnerGraph({ components, dependencies, onNodeClick, selectedId, directi
             edgeTypes={edgeTypes}
             fitView
             fitViewOptions={{ padding: 0.15 }}
-            minZoom={0.3}
+            minZoom={0.1}
             maxZoom={2}
             proOptions={{ hideAttribution: true }}
         >
-            <Background
-                variant={BackgroundVariant.Dots}
-                gap={24}
-                size={1}
-                color="#ffffff08"
-            />
-            <Controls
-                className="!bg-zinc-950 !border-white/10 !rounded-xl overflow-hidden !shadow-xl"
-                style={{ bottom: 80, right: 16, top: "auto", left: "auto" }}
-                showInteractive={false}
-            />
+            <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#ffffff08" />
+            <Controls className="!bg-zinc-950 !border-white/10 !rounded-xl overflow-hidden !shadow-xl" style={{ bottom: 80, right: 16, top: "auto", left: "auto" }} showInteractive={false} />
             <MiniMap
                 nodeColor={(n) => {
                     const comp = components.find(c => c.id === n.id);
@@ -436,15 +345,7 @@ function InnerGraph({ components, dependencies, onNodeClick, selectedId, directi
                     return { stable: "#10b981", flagged: "#f97316", pending: "#facc15", locked: "#ffffff30" }[comp.status] ?? "#333";
                 }}
                 maskColor="#00000090"
-                style={{
-                    backgroundColor: "#09090b",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 12,
-                    bottom: 16,
-                    right: 16,
-                    top: "auto",
-                    left: "auto",
-                }}
+                style={{ backgroundColor: "#09090b", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, bottom: 16, right: 16, top: "auto", left: "auto" }}
                 className="!right-4 !bottom-4"
             />
         </ReactFlow>
@@ -470,66 +371,64 @@ export const DependencyGraphPage = ({ projectId, onBack, onOpenIDE }: Dependency
         enabled: !!changeId
     });
 
-    const { data: components = [], isLoading: componentsLoading } = useQuery({
-        queryKey: ['project', projectId, 'components'],
-        queryFn: async () => {
-            const comps = await componentsApi.list(projectId);
-            const nodes: ComponentNode[] = comps.map(c => ({
-                id: c.id,
-                name: c.name,
-                status: c.status as ComponentStatus,
-                fileCount: 0,
-                contributors: c.contributors.map(ct => ({
-                    id: ct.user_id,
-                    name: "Unknown",
-                    initials: "??",
-                    color: "from-gray-500 to-gray-600"
-                })),
-                lastActivity: "Unknown",
+    // ─── ONLY ONE NEO4J DATA FETCH ALLOWED ────────────────────────────────────
+    const { data: graphData, isLoading: graphLoading } = useQuery({
+        queryKey: ['project', projectId, 'neo4j-graph'],
+        queryFn: () => projectsApi.getGraph(projectId),
+        refetchInterval: 2000
+    });
+
+    const components: ComponentNode[] = useMemo(() => {
+        if (!graphData?.nodes) return [];
+        return graphData.nodes.map((n) => {
+            let status: ComponentStatus = "stable";
+            if (n.type === "EXPORT") status = "pending";
+            if (n.type === "MODULE" || n.type === "UNKNOWN") status = "locked";
+
+            return {
+                id: n.id,
+                name: n.label || n.id,
+                status,
+                fileCount: 1,
+                contributors: [],
+                lastActivity: n.type || "NODE",
                 activeChanges: 0,
-                isMyComponent: false
-            }));
-            return nodes;
-        }
-    });
+                isMyComponent: true
+            };
+        });
+    }, [graphData]);
 
-    const { data: dependencies = [], isLoading: depsLoading } = useQuery({
-        queryKey: ['project', projectId, 'dependencies'],
-        queryFn: async () => {
-            if (!components.length) return [];
-            const depsResponses = await Promise.all(components.map(c => componentsApi.getDependencies(c.id)));
-            const edges: Dependency[] = [];
-            const impactedComponentIds = impactsData ? new Set(impactsData.impacts.map(i => i.component_id)) : new Set<string>();
+    const dependencies: Dependency[] = useMemo(() => {
+        if (!graphData?.edges) return [];
+        const impactedIds = impactsData ? new Set(impactsData.impacts.map(i => i.component_id)) : new Set<string>();
 
-            depsResponses.forEach((res, i) => {
-                const sourceId = components[i].id;
-                res.depends_on.forEach(dep => {
-                    const hasActiveChange = impactedComponentIds.has(sourceId) || impactedComponentIds.has(dep.target_component_id);
-                    edges.push({
-                        from: sourceId,
-                        to: dep.target_component_id,
-                        type: dep.dependency_type as "import" | "calls" | "event",
-                        hasActiveChange,
-                        label: dep.dependency_type
-                    });
-                });
-            });
-            return edges;
-        },
-        enabled: components.length > 0
-    });
+        return graphData.edges.map((e) => {
+            let edgeType: "import" | "calls" | "event" = "import";
+            if (e.label === "CALLS") edgeType = "calls";
+            if (e.label === "CONTAINS" || e.label === "OWNS") edgeType = "event";
+
+            const hasActiveChange = impactedIds.has(e.source) || impactedIds.has(e.target);
+
+            return {
+                from: e.source,
+                to: e.target,
+                type: edgeType,
+                hasActiveChange,
+                label: e.label
+            };
+        });
+    }, [graphData, impactsData]);
+    // ──────────────────────────────────────────────────────────────────────────
 
     const totalEdges = dependencies.length;
     const activeEdges = dependencies.filter(d => d.hasActiveChange).length;
 
-    if (componentsLoading) {
-        return <div className="flex h-screen items-center justify-center bg-[#08080a] text-white">Loading graph...</div>;
+    if (graphLoading) {
+        return <div className="flex h-screen items-center justify-center bg-[#08080a] text-white">Loading Neo4j Graph...</div>;
     }
 
     return (
         <div className="flex h-screen bg-[#08080a] text-white overflow-hidden flex-col">
-
-            {/* ── Header ─────────────────────────────────────────────────────── */}
             <header className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-black/50 backdrop-blur-sm z-20">
                 <div className="flex items-center gap-3">
                     <div className="h-6 w-6 rounded-md bg-white flex items-center justify-center">
@@ -551,23 +450,12 @@ export const DependencyGraphPage = ({ projectId, onBack, onOpenIDE }: Dependency
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* Stats */}
                     <div className="flex items-center gap-3 text-[11px] text-white/35">
-                        <span>{components.length} components</span>
+                        <span>{components.length} nodes</span>
                         <span className="text-white/15">·</span>
                         <span>{totalEdges} connections</span>
-                        {activeEdges > 0 && (
-                            <>
-                                <span className="text-white/15">·</span>
-                                <span className="text-orange-400/80 flex items-center gap-1">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse" />
-                                    {activeEdges} active propagation{activeEdges > 1 ? "s" : ""}
-                                </span>
-                            </>
-                        )}
                     </div>
 
-                    {/* Layout direction toggle */}
                     <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.08] rounded-xl p-1">
                         {(["LR", "TB"] as const).map(d => (
                             <button
@@ -587,7 +475,6 @@ export const DependencyGraphPage = ({ projectId, onBack, onOpenIDE }: Dependency
                 </div>
             </header>
 
-            {/* ── Graph canvas ───────────────────────────────────────────────── */}
             <div className="flex-1 relative">
                 <ReactFlowProvider>
                     <InnerGraph
@@ -599,20 +486,8 @@ export const DependencyGraphPage = ({ projectId, onBack, onOpenIDE }: Dependency
                     />
                 </ReactFlowProvider>
 
-                {/* Legend */}
                 <Legend />
 
-                {/* Floating active-change alert */}
-                {activeEdges > 0 && (
-                    <div className="absolute top-4 left-4 flex items-center gap-2 bg-orange-500/10 border border-orange-500/20 backdrop-blur-sm rounded-xl px-3 py-2 z-10 shadow-lg">
-                        <Zap className="h-3.5 w-3.5 text-orange-400" />
-                        <span className="text-xs text-orange-400">
-                            <span className="font-bold">Authentication</span> change is propagating — {activeEdges} component{activeEdges > 1 ? "s" : ""} notified
-                        </span>
-                    </div>
-                )}
-
-                {/* Detail panel */}
                 {selected && (
                     <DetailPanel
                         component={selected}

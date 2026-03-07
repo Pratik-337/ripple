@@ -36,7 +36,7 @@ async def _parse_project_async(project_id: str):
                 f.language = lang
                 
                 # Parse TypeScript/JavaScript only (other language parsers not implemented)
-                if lang in ["typescript", "javascript"]:
+                if lang in ["typescript", "javascript", "java"]:
                     parsed = parse_file(f.path, content_str)
                     
                     imp_dict = [{"source": i.source, "symbols": i.symbols} for i in parsed.imports]

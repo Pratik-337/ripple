@@ -1,7 +1,8 @@
 import tree_sitter
+import tree_sitter_java
+import tree_sitter_typescript as ts_ts
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
-import tree_sitter_typescript as ts_ts
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 import os
@@ -42,7 +43,6 @@ class TypeScriptExtractor:
     def extract_imports(self) -> List[ImportInfo]:
         imports = []
 
-        # Let's do a rigorous manual AST traversal for robust import/export parsing to bypass TS version inconsistencies.
         def traverse_imports(node: tree_sitter.Node):
             if node.type == 'import_statement':
                 source = ""
@@ -58,7 +58,7 @@ class TypeScriptExtractor:
                                         for s_child in spec.children:
                                             if s_child.type == 'identifier':
                                                 symbols.append(self._get_text(s_child))
-                            elif gchild.type == 'identifier':  # default import
+                            elif gchild.type == 'identifier':
                                 symbols.append(self._get_text(gchild))
                 if source:
                     imports.append(ImportInfo(source=source, symbols=symbols))
@@ -75,17 +75,17 @@ class TypeScriptExtractor:
         def traverse_exports(node: tree_sitter.Node):
             if node.type == 'export_statement':
                 for child in node.children:
-                    if child.type == 'lexical_declaration' or child.type == 'variable_declaration':  # export const ...
+                    if child.type in ('lexical_declaration', 'variable_declaration'):
                         for var_decl in child.children:
                             if var_decl.type == 'variable_declarator':
                                 for v_child in var_decl.children:
                                     if v_child.type == 'identifier':
                                         exports.append(ExportInfo(name=self._get_text(v_child)))
-                    elif child.type == 'function_declaration' or child.type == 'class_declaration':  # export function, export class
+                    elif child.type in ('function_declaration', 'class_declaration'):
                         for fn_child in child.children:
                             if fn_child.type in ('identifier', 'type_identifier'):
                                 exports.append(ExportInfo(name=self._get_text(fn_child)))
-                    elif child.type == 'export_clause':  # export { foo }
+                    elif child.type == 'export_clause':
                         for spec in child.children:
                             if spec.type == 'export_specifier':
                                 for s_child in spec.children:
@@ -106,30 +106,93 @@ class TypeScriptExtractor:
         return []
 
 
+# ─── BRAND NEW JAVA EXTRACTOR ────────────────────────────────────────────────
+class JavaExtractor:
+    def __init__(self, content: bytes, tree: tree_sitter.Tree):
+        self.content = content
+        self.tree = tree
+        self.root = tree.root_node
+
+    def _get_text(self, node: tree_sitter.Node) -> str:
+        return self.content[node.start_byte:node.end_byte].decode("utf8")
+
+    def extract_imports(self) -> List[ImportInfo]:
+        imports = []
+
+        def traverse_imports(node: tree_sitter.Node):
+            if node.type == 'import_declaration':
+                # Grab the actual import path (e.g., java.util.List)
+                text = self._get_text(node).replace('import ', '').replace(';', '').strip()
+                # Use the last part of the path as the symbol
+                symbol = text.split('.')[-1]
+                imports.append(ImportInfo(source=text, symbols=[symbol]))
+            else:
+                for child in node.children:
+                    traverse_imports(child)
+
+        traverse_imports(self.root)
+        return imports
+
+    def extract_exports(self) -> List[ExportInfo]:
+        exports = []
+
+        def traverse_exports(node: tree_sitter.Node):
+            # In Java, classes and interfaces act as exported modules
+            if node.type in ['class_declaration', 'interface_declaration', 'enum_declaration']:
+                for child in node.children:
+                    if child.type == 'identifier':
+                        exports.append(ExportInfo(name=self._get_text(child)))
+                        break
+
+            for child in node.children:
+                traverse_exports(child)
+
+        traverse_exports(self.root)
+        return exports
+
+    def extract_definitions(self) -> List[str]:
+        return []
+
+    def extract_calls(self) -> List[str]:
+        return []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+
 def parse_file(file_path: str, content: str) -> ParsedFile:
-    lang = tree_sitter.Language(ts_ts.language_typescript())
+    is_java = file_path.endswith('.java')
+
+    # Dynamically select language grammar
+    if is_java:
+        lang = tree_sitter.Language(tree_sitter_java.language())
+    else:
+        lang = tree_sitter.Language(ts_ts.language_typescript())
+
     parser = tree_sitter.Parser()
-    # Handle API changes between ts0.21 and 0.23:
     try:
         parser.set_language(lang)
     except Exception:
-        parser.language = lang  # tree_sitter >0.22 property
+        parser.language = lang
 
     content_bytes = content.encode("utf8")
     tree = parser.parse(content_bytes)
 
-    extractor = TypeScriptExtractor(content_bytes, tree)
+    # Route to the correct Extractor
+    if is_java:
+        extractor = JavaExtractor(content_bytes, tree)
+    else:
+        extractor = TypeScriptExtractor(content_bytes, tree)
 
     return ParsedFile(
         imports=extractor.extract_imports(),
         exports=extractor.extract_exports(),
-        definitions=extractor.extract_definitions(),  # ---> FIXED TYPO HERE <---
+        definitions=extractor.extract_definitions(),
         calls=extractor.extract_calls()
     )
 
 
 async def build_dependency_graph(project_id: str, db: AsyncSession):
-    # Fetch all ProjectFile rows for the project
     res = await db.execute(
         select(ProjectFile)
         .where(ProjectFile.project_id == project_id)
@@ -137,23 +200,19 @@ async def build_dependency_graph(project_id: str, db: AsyncSession):
     )
     files = res.scalars().all()
 
-    # Build export_index
     export_index = {}
     path_to_file = {}
 
     for f in files:
-        # Standardize path
         norm_path = os.path.normpath(f.path)
         path_to_file[norm_path] = f
 
         symbols = f.parsed_symbols or {}
         exports = symbols.get("exports", [])
         for ex in exports:
-            # Handle if export is a dict or string based on the new extractor
             ex_name = ex.get("name") if isinstance(ex, dict) else ex
             export_index[ex_name] = f
 
-    # Handle resolution and component dependencies
     deps_to_create = []
     seen_deps = set()
 
@@ -165,19 +224,22 @@ async def build_dependency_graph(project_id: str, db: AsyncSession):
 
         for imp in imports:
             source_req = imp.get("source")
-            if not source_req or not source_req.startswith("."):
+            if not source_req:
                 continue
 
-            base_dir = os.path.dirname(src_file.path)
-            resolved_base = os.path.normpath(os.path.join(base_dir, source_req))
             target_f = None
 
-            for ext in [".ts", ".tsx", ".js", ".jsx"]:
-                cand = f"{resolved_base}{ext}"
-                if cand in path_to_file:
-                    target_f = path_to_file[cand]
-                    break
+            # 1. Try resolving relative paths (TypeScript style)
+            if source_req.startswith("."):
+                base_dir = os.path.dirname(src_file.path)
+                resolved_base = os.path.normpath(os.path.join(base_dir, source_req))
+                for ext in [".ts", ".tsx", ".js", ".jsx"]:
+                    cand = f"{resolved_base}{ext}"
+                    if cand in path_to_file:
+                        target_f = path_to_file[cand]
+                        break
 
+            # 2. Try resolving by symbol mapping (Java style)
             if not target_f:
                 symbols_req = imp.get("symbols", [])
                 for s in symbols_req:
@@ -201,43 +263,38 @@ async def build_dependency_graph(project_id: str, db: AsyncSession):
                         )
                     )
 
-    # Insert new dependencies into Postgres
     for d in deps_to_create:
         db.add(d)
 
     await db.commit()
 
-    # ─── INJECTED NEO4J LOGIC ────────────────────────────────────────────────
-    # Now that Postgres is updated, let's simultaneously map this data to Neo4j
+    # ─── DYNAMIC NEO4J INGESTION ─────────────────────────────────────────────
     nodes = []
     relations = []
 
     for f in files:
         file_id = f.path
 
-        # 1. Add the file node
-        nodes.append({"id": file_id, "type": "FILE", "language": "typescript"})
+        # Make sure the UI knows if it's Java or TS
+        lang_str = "java" if file_id.endswith(".java") else "typescript"
+        nodes.append({"id": file_id, "type": "FILE", "language": lang_str})
 
         symbols = f.parsed_symbols or {}
 
-        # 2. Add Exports (Definitions)
         for ex in symbols.get("exports", []):
             ex_name = ex.get("name") if isinstance(ex, dict) else ex
             node_id = f"{file_id}::{ex_name}"
-            nodes.append({"id": node_id, "type": "EXPORT", "language": "typescript"})
+            nodes.append({"id": node_id, "type": "EXPORT", "language": lang_str})
             relations.append({"from": file_id, "to": node_id, "type": "CONTAINS"})
 
-        # 3. Add Imports
         for imp in symbols.get("imports", []):
             target_module = imp.get("source")
             if target_module:
                 nodes.append({"id": target_module, "type": "MODULE", "language": "unknown"})
                 relations.append({"from": file_id, "to": target_module, "type": "IMPORTS"})
 
-    # Deduplicate nodes
     unique_nodes = list({n["id"]: n for n in nodes}.values())
 
-    # Bulk Insert into Neo4j
     try:
         with neo4j_db.get_session() as session:
             session.run("""

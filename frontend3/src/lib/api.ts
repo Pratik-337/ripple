@@ -232,6 +232,8 @@ export const projectsApi = {
 
     getProject: (id: string) => get<ProjectData>(`/projects/${id}`),
 
+    getGraph: (id: string) => get<{ nodes: { id: string, label: string, type: string }[], edges: { source: string, target: string, label: string }[] }>(`/projects/${id}/graph`),
+
     create: (name: string, description: string, color: string, icon: string) =>
         post<Project>('/projects', { name, description, color, icon }),
 
